@@ -12,6 +12,10 @@ from app.routes.auditoria_routes import router as auditoria_router
 
 app = FastAPI()
 
+@app.get("/")
+def read_root():
+    return {"message": "API de GestionDeporIUB funcionando correctamente en Vercel"}
+
 origins = [
     #"http://localhost.tiangolo.com",
     #"https://localhost.tiangolo.com",
