@@ -48,10 +48,11 @@ CREATE TABLE modulos (
 CREATE TABLE usuarios (
     id SERIAL PRIMARY KEY,
     rol_id INTEGER REFERENCES roles(id),
+    tipo_documento_id INTEGER NOT NULL,
+    numero_documento VARCHAR(50) NOT NULL,
+    facultad_id INTEGER NOT NULL,
     nombre VARCHAR(50) NOT NULL,
     apellido VARCHAR(50) NOT NULL,
-    cedula VARCHAR(20) NOT NULL,
-    edad INTEGER NOT NULL,
     usuario VARCHAR(50) NOT NULL UNIQUE,
     contrasena VARCHAR(255) NOT NULL,
     estado BOOLEAN DEFAULT TRUE,
@@ -111,6 +112,7 @@ CREATE TABLE inscripciones (
     id SERIAL PRIMARY KEY,
     usuario_id INTEGER REFERENCES usuarios(id),
     horario_id INTEGER REFERENCES horarios(id),
+    programa_id INTEGER NOT NULL,
     fecha_inscripcion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     estado BOOLEAN DEFAULT TRUE,
     created_ TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -156,8 +158,8 @@ INSERT INTO modulos (nombre, descripcion) VALUES
 ('Horarios', 'Agenda deportiva');
 
 -- Usuario Admin de prueba
-INSERT INTO usuarios (nombre, apellido, cedula, edad, usuario, contrasena, rol_id) 
-VALUES ('Juan', 'Torres', '123456', 21, 'admin', 'admin123', 1);
+INSERT INTO usuarios (nombre, apellido, tipo_documento_id, numero_documento, facultad_id, usuario, contrasena, rol_id) 
+VALUES ('Juan', 'Torres', 1, '123456', 1, 'admin', 'admin123', 1);
 
--- Permisos (Ej: Admin accede a todo)
+-- Permisos 
 INSERT INTO permisos_rol (rol_id, modulo_id) VALUES (1,1), (1,2), (1,3), (1,4);

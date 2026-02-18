@@ -50,6 +50,7 @@ class Inscripcion(BaseModel):
     id: Optional[int] = None
     usuario_id: int
     horario_id: int
+    programa_id: int
     fecha_inscripcion: Optional[datetime] = None
     estado: bool = True
     created_: Optional[datetime] = None
@@ -66,10 +67,10 @@ class AuditoriaAccesos(BaseModel):
 class Usuario(BaseModel):
     id: Optional[int] = None
     rol_id: int
+    tipo_documento_id: int
+    numero_documento: str
+    facultad_id: int
     nombre: str
     apellido: str
-    cedula: str
-    edad: int
-    usuario: str
     contrasena: str
     estado: bool = True
