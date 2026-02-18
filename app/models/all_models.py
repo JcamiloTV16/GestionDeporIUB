@@ -67,9 +67,9 @@ class AuditoriaAccesos(BaseModel):
 class Usuario(BaseModel):
     id: Optional[int] = None
     rol_id: int
-    tipo_documento_id: int
-    numero_documento: str
-    facultad_id: int
+    tipo_documento_id: Optional[int] = None
+    numero_documento: Optional[str] = None
+    facultad_id: Optional[int] = None
     nombre: str
     apellido: str
     contrasena: str

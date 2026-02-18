@@ -7,6 +7,7 @@ class BaseController:
     def __init__(self, table_name):
         self.table_name = table_name
 
+    #LEER TODOS
     def get_all(self):
         conn = None
         try:
@@ -15,7 +16,6 @@ class BaseController:
             cursor.execute(f"SELECT * FROM {self.table_name}")
             result = cursor.fetchall()
             
-            # Get column names
             colnames = [desc[0] for desc in cursor.description]
             
             payload = []
@@ -34,6 +34,7 @@ class BaseController:
             if conn:
                 conn.close()
 
+    #LEER POR ID
     def get_by_id(self, id: int):
         conn = None
         try:
@@ -57,6 +58,7 @@ class BaseController:
             if conn:
                 conn.close()
 
+    #CREAR
     def create(self, data: dict):
         conn = None
         try:
@@ -85,6 +87,7 @@ class BaseController:
             if conn:
                 conn.close()
 
+    #ACTUALIZAR
     def update(self, id: int, data: dict):
         conn = None
         try:
@@ -113,6 +116,7 @@ class BaseController:
             if conn:
                 conn.close()
 
+    #ELIMINAR
     def delete(self, id: int):
         conn = None
         try:
