@@ -3,10 +3,6 @@ from app.config.db_config import get_db_connection
 import psycopg2
 
 def get_current_user_id(user_id: int = Header(..., alias="X-User-ID")):
-    """
-    Simula la obtención del usuario actual a través de un header.
-    En un entorno real, esto decodificaría un token JWT.
-    """
     if not user_id:
         raise HTTPException(status_code=401, detail="User ID header missing")
     return user_id
@@ -21,7 +17,7 @@ class PermissionChecker:
             conn = get_db_connection()
             cursor = conn.cursor()
 
-            # 1. Obtener el rol del usuario
+            # Obtener el rol del usuario
             cursor.execute("SELECT rol_id FROM usuarios WHERE id = %s", (user_id,))
             result = cursor.fetchone()
             
@@ -30,8 +26,7 @@ class PermissionChecker:
             
             rol_id = result[0]
 
-            # 2. Verificar permiso en la tabla permisos_rol
-            # Si es admin (rol_id 1), generalmente tiene acceso total, pero seguiremos la lógica de la tabla
+            # Verificar permiso en la tabla permisos_rol
             cursor.execute(
                 "SELECT acceso FROM permisos_rol WHERE rol_id = %s AND modulo_id = %s", 
                 (rol_id, self.modulo_id)
