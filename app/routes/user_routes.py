@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from app.controllers.user_controller import user_controller
-from app.models.all_models import Usuario
+from app.models.all_models import User, UserCreate
 from app.dependencies.permissions import PermissionChecker
 
 router = APIRouter()
@@ -16,9 +16,9 @@ async def get_usuarios():
 async def get_usuario(id: int):
     return user_controller.get_by_id(id)
 
-@router.post("/usuarios/", tags=["Usuarios"], dependencies=[PROTECTED])
-async def create_usuario(usuario: Usuario):
-    return user_controller.create(usuario.dict(exclude_unset=True))
+@router.post("/", response_model=User)
+def create_user(user: UserCreate): 
+    return controller.create_user(user)
 
 @router.put("/usuarios/{id}", tags=["Usuarios"], dependencies=[PROTECTED])
 async def update_usuario(id: int, usuario: Usuario):
