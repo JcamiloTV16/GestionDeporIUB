@@ -12,17 +12,17 @@ PROTECTED = Depends(PermissionChecker(modulo_id=1))
 async def get_usuarios():
     return user_controller.get_all()
 
-@router.get("/usuarios/{id}", response_model=Usuario, tags=["Usuarios"], dependencies=[PROTECTED])
+@router.get("/usuarios/{id}", response_model=User, tags=["Usuarios"], dependencies=[PROTECTED])
 async def get_usuario(id: int):
     return user_controller.get_by_id(id)
 
 @router.post("/", response_model=User)
 def create_user(user: UserCreate): 
-    return controller.create_user(user)
+    return user_controller.create_user(user)
 
 @router.put("/usuarios/{id}", tags=["Usuarios"], dependencies=[PROTECTED])
-async def update_usuario(id: int, usuario: Usuario):
-    return user_controller.update(id, usuario.dict(exclude_unset=True))
+async def update_usuario(id: int, user: User):
+    return user_controller.update(id, user.dict(exclude_unset=True))
 
 @router.delete("/usuarios/{id}", tags=["Usuarios"], dependencies=[PROTECTED])
 async def delete_usuario(id: int):

@@ -1,8 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime, time
 import pytz
-from datetime import datetime
 
 
 def get_colombia_time():
