@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.controllers.role_controller import role_controller
-from app.models.all_models import Role, RoleCreate
+from app.models import Role, RoleCreate
 
 router = APIRouter()
 

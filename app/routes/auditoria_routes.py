@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.controllers.auditoria_controller import auditoria_controller
-from app.models.all_models import AuditoriaAccesos, AuditoriaAccesosCreate
+from app.models import AuditoriaAccesos, AuditoriaAccesosCreate
 
 router = APIRouter()
 

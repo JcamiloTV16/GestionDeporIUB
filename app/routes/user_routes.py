@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from app.controllers.user_controller import user_controller
-from app.models.all_models import User, UserCreate
+from app.models import User, UserCreate
 from app.dependencies.permissions import PermissionChecker
 
 router = APIRouter()

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.controllers.modulo_controller import modulo_controller
-from app.models.all_models import Modulo, ModuloCreate
+from app.models import Modulo, ModuloCreate
 
 router = APIRouter()
 

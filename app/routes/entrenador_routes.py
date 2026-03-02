@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.controllers.entrenador_controller import entrenador_controller
-from app.models.all_models import Entrenador, EntrenadorCreate
+from app.models import Entrenador, EntrenadorCreate
 
 router = APIRouter()
 

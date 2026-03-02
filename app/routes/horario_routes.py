@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.controllers.horario_controller import horario_controller
-from app.models.all_models import Horario, HorarioCreate
+from app.models import Horario, HorarioCreate
 
 router = APIRouter()
 

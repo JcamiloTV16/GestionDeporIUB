@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.controllers.inscripcion_controller import inscripcion_controller
-from app.models.all_models import Inscripcion, InscripcionCreate
+from app.models import Inscripcion, InscripcionCreate
 
 router = APIRouter()
 

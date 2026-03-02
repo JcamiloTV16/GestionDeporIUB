@@ -1,0 +1,9 @@
+from .role import Role, RoleCreate
+from .modulo import Modulo, ModuloCreate
+from .permiso import PermisoRol, PermisoRolCreate
+from .deporte import Deporte, DeporteCreate
+from .entrenador import Entrenador, EntrenadorCreate
+from .horario import Horario, HorarioCreate
+from .inscripcion import Inscripcion, InscripcionCreate
+from .auditoria import AuditoriaAccesos, AuditoriaAccesosCreate
+from .user import User, UserCreate

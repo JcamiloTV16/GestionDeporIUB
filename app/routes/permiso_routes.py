@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.controllers.permiso_controller import permiso_controller
-from app.models.all_models import PermisoRol, PermisoRolCreate
+from app.models import PermisoRol, PermisoRolCreate
 
 router = APIRouter()
 

@@ -1,5 +1,5 @@
 from app.controllers.base_controller import BaseController
-from app.models.all_models import User, UserCreate
+from app.models import User, UserCreate
 from app.config.db_config import get_db_connection
 
 class UserController(BaseController):
