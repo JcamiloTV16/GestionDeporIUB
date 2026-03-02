@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.controllers.role_controller import role_controller
-from app.models.all_models import Role
+from app.models.all_models import Role, RoleCreate
 
 router = APIRouter()
 
@@ -12,8 +12,8 @@ async def get_roles():
 async def get_role(id: int):
     return role_controller.get_by_id(id)
 
-@router.post("/roles/", tags=["Roles"])
-async def create_role(role: Role):
+@router.post("/roles/", response_model=Role, tags=["Roles"])
+async def create_role(role: RoleCreate):
     return role_controller.create(role.dict(exclude_unset=True))
 
 @router.put("/roles/{id}", tags=["Roles"])

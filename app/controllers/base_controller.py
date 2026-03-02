@@ -71,15 +71,17 @@ class BaseController:
             placeholders = ",".join(["%s"] * len(values))
             columns_str = ",".join(columns)
             
-            query = f"INSERT INTO {self.table_name} ({columns_str}) VALUES ({placeholders}) RETURNING id"
+            query = f"INSERT INTO {self.table_name} ({columns_str}) VALUES ({placeholders}) RETURNING *"
             
             cursor.execute(query, values)
-            new_id = cursor.fetchone()[0]
+            result = cursor.fetchone()
             conn.commit()
             
-            return {"resultado": f"{self.table_name} created", "id": new_id}
+            colnames = [desc[0] for desc in cursor.description]
+            content = dict(zip(colnames, result))
+            return jsonable_encoder(content)
             
-        except psycopg2.Error as err:
+        except Exception as err:
             if conn:
                 conn.rollback()
             raise HTTPException(status_code=500, detail=str(err))

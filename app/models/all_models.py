@@ -9,67 +9,113 @@ def get_colombia_time():
 
 
 
-class Role(BaseModel):
-    id: Optional[int] = None
-    nombre: str
-    descripcion: Optional[str] = None
-    estado: bool = True
+class RoleBase(BaseModel):
+    nombre_rol: str
 
-class Modulo(BaseModel):
-    id: Optional[int] = None
-    nombre: str
-    descripcion: Optional[str] = None
-    estado: bool = True
+class RoleCreate(RoleBase):
+    pass
 
-class PermisoRol(BaseModel):
+class Role(RoleBase):
     id: Optional[int] = None
+    estado: bool = True
+    create_: Optional[datetime] = Field(default_factory=get_colombia_time)
+    update_: Optional[datetime] = Field(default_factory=get_colombia_time)
+
+class ModuloBase(BaseModel):
+    nombre_modulo: str
+    ruta_url: Optional[str] = None
+
+class ModuloCreate(ModuloBase):
+    pass
+
+class Modulo(ModuloBase):
+    id: Optional[int] = None
+    estado: bool = True
+    create_: Optional[datetime] = Field(default_factory=get_colombia_time)
+    update_: Optional[datetime] = Field(default_factory=get_colombia_time)
+
+class PermisoRolBase(BaseModel):
     rol_id: int
     modulo_id: int
-    acceso: bool = True
-    estado: bool = True
 
-class Deporte(BaseModel):
+class PermisoRolCreate(PermisoRolBase):
+    pass
+
+class PermisoRol(PermisoRolBase):
     id: Optional[int] = None
+    estado: bool = True
+    create_: Optional[datetime] = Field(default_factory=get_colombia_time)
+    update_: Optional[datetime] = Field(default_factory=get_colombia_time)
+
+class DeporteBase(BaseModel):
     nombre: str
     descripcion: Optional[str] = None
-    estado: bool = True
+    imagen_logro: Optional[str] = None
 
-class Entrenador(BaseModel):
+class DeporteCreate(DeporteBase):
+    pass
+
+class Deporte(DeporteBase):
     id: Optional[int] = None
+    estado: bool = True
+    create_: Optional[datetime] = Field(default_factory=get_colombia_time)
+    update_: Optional[datetime] = Field(default_factory=get_colombia_time)
+
+class EntrenadorBase(BaseModel):
     usuario_id: int
     deporte_id: int
     biografia: Optional[str] = None
-    estado: bool = True
 
-class Horario(BaseModel):
+class EntrenadorCreate(EntrenadorBase):
+    pass
+
+class Entrenador(EntrenadorBase):
     id: Optional[int] = None
+    estado: bool = True
+    create_: Optional[datetime] = Field(default_factory=get_colombia_time)
+    update_: Optional[datetime] = Field(default_factory=get_colombia_time)
+
+class HorarioBase(BaseModel):
     deporte_id: int
-    entrenador_id: int
     dia_semana: str
     hora_inicio: time
     hora_fin: time
     lugar: Optional[str] = None
-    estado: bool = True
-    created_: Optional[datetime] = None
-    updated_: Optional[datetime] = None
 
-class Inscripcion(BaseModel):
+class HorarioCreate(HorarioBase):
+    pass
+
+class Horario(HorarioBase):
     id: Optional[int] = None
-    usuario_id: int
-    horario_id: int
+    estado: bool = True
+    create_: Optional[datetime] = Field(default_factory=get_colombia_time)
+    update_: Optional[datetime] = Field(default_factory=get_colombia_time)
+
+class InscripcionBase(BaseModel):
+    estudiante_id: int
+    deporte_id: int
     programa_id: int
-    fecha_inscripcion: Optional[datetime] = None
-    estado: bool = True
-    created_: Optional[datetime] = None
-    updated_: Optional[datetime] = None
 
-class AuditoriaAccesos(BaseModel):
+class InscripcionCreate(InscripcionBase):
+    pass
+
+class Inscripcion(InscripcionBase):
     id: Optional[int] = None
+    estado: bool = True
+    create_: Optional[datetime] = Field(default_factory=get_colombia_time)
+    update_: Optional[datetime] = Field(default_factory=get_colombia_time)
+
+class AuditoriaAccesosBase(BaseModel):
     admin_id: int
     tabla_afectada: str
     accion: str
-    fecha_cambio: Optional[datetime] = None
 
+class AuditoriaAccesosCreate(AuditoriaAccesosBase):
+    pass
+
+class AuditoriaAccesos(AuditoriaAccesosBase):
+    id: Optional[int] = None
+    fecha_cambio: Optional[datetime] = Field(default_factory=get_colombia_time)
 
 class UserBase(BaseModel):
     rol_id: int
@@ -88,13 +134,4 @@ class User(UserBase):
     create_: datetime = Field(default_factory=get_colombia_time)
     update_: datetime = Field(default_factory=get_colombia_time)
 
-class Usuario(BaseModel):
-    id: Optional[int] = None
-    rol_id: int
-    tipo_documento_id: Optional[int] = None
-    numero_documento: Optional[str] = None
-    facultad_id: Optional[int] = None
-    nombre: str
-    apellido: str
-    contrasena: str
-    estado: bool = True
+# Eliminar modelo Usuario antiguo (ya no existe en la DB con ese nombre)

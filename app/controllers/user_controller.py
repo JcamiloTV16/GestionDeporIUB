@@ -1,9 +1,9 @@
 from app.controllers.base_controller import BaseController
-from app.models.all_models import User
+from app.models.all_models import User, UserCreate
 from app.config.db_config import get_db_connection
 
 class UserController(BaseController):
-    def create_user(self, user: User):
+    def create_user(self, user: UserCreate):
         
         query = """
             INSERT INTO usuarios (rol_id, tipo_documento_id, numero_documento, facultad_id, nombre, email, password, create_, update_)

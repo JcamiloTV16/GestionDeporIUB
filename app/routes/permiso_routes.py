@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.controllers.permiso_controller import permiso_controller
-from app.models.all_models import PermisoRol
+from app.models.all_models import PermisoRol, PermisoRolCreate
 
 router = APIRouter()
 
@@ -12,8 +12,8 @@ async def get_permisos():
 async def get_permiso(id: int):
     return permiso_controller.get_by_id(id)
 
-@router.post("/permisos/", tags=["Permisos"])
-async def create_permiso(permiso: PermisoRol):
+@router.post("/permisos/", response_model=PermisoRol, tags=["Permisos"])
+async def create_permiso(permiso: PermisoRolCreate):
     return permiso_controller.create(permiso.dict(exclude_unset=True))
 
 @router.put("/permisos/{id}", tags=["Permisos"])

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.controllers.deporte_controller import deporte_controller
-from app.models.all_models import Deporte
+from app.models.all_models import Deporte, DeporteCreate
 
 router = APIRouter()
 
@@ -12,8 +12,8 @@ async def get_deportes():
 async def get_deporte(id: int):
     return deporte_controller.get_by_id(id)
 
-@router.post("/deportes/", tags=["Deportes"])
-async def create_deporte(deporte: Deporte):
+@router.post("/deportes/", response_model=Deporte, tags=["Deportes"])
+async def create_deporte(deporte: DeporteCreate):
     return deporte_controller.create(deporte.dict(exclude_unset=True))
 
 @router.put("/deportes/{id}", tags=["Deportes"])

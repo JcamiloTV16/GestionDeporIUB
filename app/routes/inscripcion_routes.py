@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.controllers.inscripcion_controller import inscripcion_controller
-from app.models.all_models import Inscripcion
+from app.models.all_models import Inscripcion, InscripcionCreate
 
 router = APIRouter()
 
@@ -12,8 +12,8 @@ async def get_inscripciones():
 async def get_inscripcion(id: int):
     return inscripcion_controller.get_by_id(id)
 
-@router.post("/inscripciones/", tags=["Inscripciones"])
-async def create_inscripcion(inscripcion: Inscripcion):
+@router.post("/inscripciones/", response_model=Inscripcion, tags=["Inscripciones"])
+async def create_inscripcion(inscripcion: InscripcionCreate):
     return inscripcion_controller.create(inscripcion.dict(exclude_unset=True))
 
 @router.put("/inscripciones/{id}", tags=["Inscripciones"])

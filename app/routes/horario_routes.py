@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.controllers.horario_controller import horario_controller
-from app.models.all_models import Horario
+from app.models.all_models import Horario, HorarioCreate
 
 router = APIRouter()
 
@@ -12,8 +12,8 @@ async def get_horarios():
 async def get_horario(id: int):
     return horario_controller.get_by_id(id)
 
-@router.post("/horarios/", tags=["Horarios"])
-async def create_horario(horario: Horario):
+@router.post("/horarios/", response_model=Horario, tags=["Horarios"])
+async def create_horario(horario: HorarioCreate):
     return horario_controller.create(horario.dict(exclude_unset=True))
 
 @router.put("/horarios/{id}", tags=["Horarios"])

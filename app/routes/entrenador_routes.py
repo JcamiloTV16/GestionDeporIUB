@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.controllers.entrenador_controller import entrenador_controller
-from app.models.all_models import Entrenador
+from app.models.all_models import Entrenador, EntrenadorCreate
 
 router = APIRouter()
 
@@ -12,8 +12,8 @@ async def get_entrenadores():
 async def get_entrenador(id: int):
     return entrenador_controller.get_by_id(id)
 
-@router.post("/entrenadores/", tags=["Entrenadores"])
-async def create_entrenador(entrenador: Entrenador):
+@router.post("/entrenadores/", response_model=Entrenador, tags=["Entrenadores"])
+async def create_entrenador(entrenador: EntrenadorCreate):
     return entrenador_controller.create(entrenador.dict(exclude_unset=True))
 
 @router.put("/entrenadores/{id}", tags=["Entrenadores"])

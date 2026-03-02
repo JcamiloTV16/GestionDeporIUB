@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.controllers.modulo_controller import modulo_controller
-from app.models.all_models import Modulo
+from app.models.all_models import Modulo, ModuloCreate
 
 router = APIRouter()
 
@@ -12,8 +12,8 @@ async def get_modulos():
 async def get_modulo(id: int):
     return modulo_controller.get_by_id(id)
 
-@router.post("/modulos/", tags=["Modulos"])
-async def create_modulo(modulo: Modulo):
+@router.post("/modulos/", response_model=Modulo, tags=["Modulos"])
+async def create_modulo(modulo: ModuloCreate):
     return modulo_controller.create(modulo.dict(exclude_unset=True))
 
 @router.put("/modulos/{id}", tags=["Modulos"])
