@@ -6,14 +6,14 @@ class UserController(BaseController):
     def create_user(self, user: User):
         
         query = """
-            INSERT INTO usuarios (nombres, apellidos, correo, password, rol_id, created_at, updated_at)
-            VALUES (%s, %s, %s, %s, %s, 
-                    (NOW() AT TIME ZONE 'UTC' AT TIME ZONE 'America/Bogota'), 
-                    (NOW() AT TIME ZONE 'UTC' AT TIME ZONE 'America/Bogota'))
-            RETURNING id, created_at, updated_at
+            INSERT INTO usuarios (rol_id, tipo_documento_id, numero_documento, facultad_id, nombre, email, password, create_, update_)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, 
+                    (NOW() AT TIME ZONE 'America/Bogota'), 
+                    (NOW() AT TIME ZONE 'America/Bogota'))
+            RETURNING id, create_, update_
         """
         
-        params = (user.nombres, user.apellidos, user.correo, user.password, user.rol_id)
+        params = (user.rol_id, user.tipo_documento_id, user.numero_documento, user.facultad_id, user.nombre, user.email, user.password)
         
         conn = None
         try:
@@ -24,13 +24,15 @@ class UserController(BaseController):
             conn.commit()
             
             return {
-                "nombres": user.nombres,
-                "apellidos": user.apellidos,
-                "correo": user.correo,
-                "rol_id": user.rol_id,
                 "id": row[0],
-                "created_at": row[1],
-                "updated_at": row[2]
+                "rol_id": user.rol_id,
+                "tipo_documento_id": user.tipo_documento_id,
+                "numero_documento": user.numero_documento,
+                "facultad_id": user.facultad_id,
+                "nombre": user.nombre,
+                "email": user.email,
+                "create_": row[1],
+                "update_": row[2]
             }
         except Exception as e:
             if conn:

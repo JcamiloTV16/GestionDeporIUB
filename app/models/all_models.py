@@ -71,17 +71,22 @@ class AuditoriaAccesos(BaseModel):
     fecha_cambio: Optional[datetime] = None
 
 
-class UserCreate(BaseModel):
-    nombres: str
-    apellidos: str
-    correo: str
-    password: str
+class UserBase(BaseModel):
     rol_id: int
+    tipo_documento_id: int
+    numero_documento: str
+    facultad_id: int
+    nombre: str
+    email: str
 
-class User(UserCreate): # Ahora User hereda de UserCreate
+class UserCreate(UserBase):
+    password: str
+
+class User(UserBase):
     id: Optional[int] = None
-    created_at: datetime = Field(default_factory=get_colombia_time)
-    updated_at: datetime = Field(default_factory=get_colombia_time)
+    estado: bool = True
+    create_: datetime = Field(default_factory=get_colombia_time)
+    update_: datetime = Field(default_factory=get_colombia_time)
 
 class Usuario(BaseModel):
     id: Optional[int] = None

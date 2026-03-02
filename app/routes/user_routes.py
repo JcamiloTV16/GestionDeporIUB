@@ -16,7 +16,7 @@ async def get_usuarios():
 async def get_usuario(id: int):
     return user_controller.get_by_id(id)
 
-@router.post("/", response_model=User)
+@router.post("/usuarios/", response_model=User, tags=["Usuarios"])
 def create_user(user: UserCreate): 
     return user_controller.create_user(user)
 
