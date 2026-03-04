@@ -24,9 +24,16 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 
+class UserData(BaseModel):
+    id: int
+    nombre: str
+    email: str
+    rol: str
+
 class Token(BaseModel):
     access_token: str
     token_type: str
+    user: UserData
 
 class TokenData(BaseModel):
     user_id: Optional[str] = None

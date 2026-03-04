@@ -10,23 +10,41 @@ class AuthController:
             conn = get_db_connection()
             cursor = conn.cursor()
             
-            # Buscar usuario por email
-            cursor.execute("SELECT id, password, nombre FROM usuarios WHERE email = %s AND estado = TRUE", (login_data.email,))
+            # Buscar usuario por email con su rol
+            cursor.execute("""
+                SELECT u.id, u.password, u.nombre, r.nombre_rol as rol_nombre 
+                FROM usuarios u
+                LEFT JOIN roles r ON u.rol_id = r.id
+                WHERE u.email = %s AND u.estado = TRUE
+            """, (login_data.email,))
             user = cursor.fetchone()
             
             if not user:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Correo o contraseña incorrectos",
+                    detail="Usuario o contraseña incorrectos",
                     headers={"WWW-Authenticate": "Bearer"},
                 )
             
-            user_id, hashed_password, user_name = user
+            user_id, db_password, user_name, role_name = user
             
-            if not verify_password(login_data.password, hashed_password):
+            # Verificación de contraseña
+            authenticated = False
+            if login_data.password == db_password:
+                authenticated = True
+            else:
+                try:
+                    # Intentar verificar si es un hash de bcrypt
+                    if db_password.startswith('$2b$') or db_password.startswith('$2y$'):
+                        if verify_password(login_data.password, db_password):
+                            authenticated = True
+                except Exception:
+                    pass
+            
+            if not authenticated:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Correo o contraseña incorrectos",
+                    detail="Usuario o contraseña incorrectos",
                     headers={"WWW-Authenticate": "Bearer"},
                 )
             
@@ -39,7 +57,8 @@ class AuthController:
                 "user": {
                     "id": user_id,
                     "nombre": user_name,
-                    "email": login_data.email
+                    "email": login_data.email,
+                    "rol": role_name or "estudiante" # Fallback if no role assigned
                 }
             }
             
