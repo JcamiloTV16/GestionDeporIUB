@@ -9,6 +9,7 @@ from app.routes.entrenador_routes import router as entrenador_router
 from app.routes.horario_routes import router as horario_router
 from app.routes.inscripcion_routes import router as inscripcion_router
 from app.routes.auditoria_routes import router as auditoria_router
+from app.routes.auth_routes import router as auth_router
 
 app = FastAPI()
 
@@ -41,6 +42,7 @@ app.include_router(entrenador_router)
 app.include_router(horario_router)
 app.include_router(inscripcion_router)
 app.include_router(auditoria_router)
+app.include_router(auth_router)
 
 if __name__ == "__main__":
     import uvicorn
