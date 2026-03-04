@@ -138,3 +138,15 @@ cython_debug/
 # Editors
 .vscode/
 .idea/
+
+# Node.js
+node_modules/
+.npm/
+npm-debug.log*
+
+# Svelte/Vite
+.svelte-kit/
+.vercel/
+dist/
+.env.local
+.env.*.local
