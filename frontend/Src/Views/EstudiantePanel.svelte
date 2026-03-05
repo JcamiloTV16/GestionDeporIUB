@@ -2,7 +2,7 @@
   import Deportes from "./Deportes.svelte";
   import Inscripcion from "./Inscripcion.svelte";
   import Torneos from "./Tornes.svelte";
-  import Chatbot from "./Chatbox.svelte";
+  import Chatbot from "../Components/Chatbox.svelte";
 
   let vista = "deportes";
 </script>
