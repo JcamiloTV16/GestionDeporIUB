@@ -13,6 +13,20 @@ export async function agregarDeporte(deporte) {
   })
 }
 
+export async function eliminarDeporte(id) {
+  await fetch(`${API}/deportes/${id}`, {
+    method: "DELETE"
+  })
+}
+
+export async function actualizarDeporte(id, deporte) {
+  await fetch(`${API}/deportes/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(deporte)
+  })
+}
+
 export async function login(email, password) {
   const res = await fetch(`${API}/auth/login`, {
     method: "POST",

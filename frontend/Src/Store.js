@@ -1,19 +1,31 @@
-import { writable } from 'svelte/store';
+// frontend/Src/Store.js
+import { writable, derived } from 'svelte/store';
 
-// Intentar recuperar la sesión de localStorage
-const savedUser = JSON.parse(localStorage.getItem('user') || 'null');
-const savedRol = localStorage.getItem('rol') || '';
+// --- BLOQUE: RECUPERACIÓN DE SESIÓN ---
+const usuarioGuardado = JSON.parse(localStorage.getItem('user') || 'null');
+const rolGuardado = localStorage.getItem('rol') || '';
 
-export const rol = writable(savedRol);
-export const user = writable(savedUser);
+// --- BLOQUE: STORES DE ESTADO ---
+export const user = writable(usuarioGuardado);
+export const rol = writable(rolGuardado);
 
-// Suscribirse para guardar cambios en localStorage
-rol.subscribe(value => {
-    if (value) localStorage.setItem('rol', value);
+// -- NUEVO: Estado de autenticación (se calcula automáticamente si hay un usuario)
+export const isAuthenticated = derived(user, ($user) => $user !== null);
+
+// --- BLOQUE: PERSISTENCIA (LocalStorage) ---
+rol.subscribe(valor => {
+    if (valor) localStorage.setItem('rol', valor);
     else localStorage.removeItem('rol');
 });
 
-user.subscribe(value => {
-    if (value) localStorage.setItem('user', JSON.stringify(value));
+user.subscribe(valor => {
+    if (valor) localStorage.setItem('user', JSON.stringify(valor));
     else localStorage.removeItem('user');
 });
+
+// --- BLOQUE: FUNCIONES GLOBALES ---
+export function cerrarSesion() {
+    user.set(null);
+    rol.set('');
+    // Al limpiar los stores, el suscribe borrará automáticamente el LocalStorage
+}

@@ -40,8 +40,11 @@ git push origin main
 pip install "fastapi[standard]"
 
 
+C:\GestionDeporIUB\myvenv\Scripts\activate
+cd C:\GestionDeporIUB\backend-python\app
+uvicorn app.main:app --reload
 
-uvicorn main:app --reload
+npm run dev
 
 
 fastapi dev main.py

@@ -1,0 +1,33 @@
+/* Estilos para las pestañas de navegación interna */
+.sub-menu-admin {
+    height: 50px;
+}
+
+.btn-pestana {
+    border: none;
+    background: none;
+    padding: 0 15px;
+    height: 100%;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #888;
+    transition: all 0.2s;
+    border-bottom: 3px solid transparent;
+}
+
+.btn-pestana:hover {
+    color: #0d6efd;
+}
+
+.btn-pestana.activa {
+    color: #0d6efd;
+    border-bottom: 3px solid #0d6efd;
+}
+
+.placeholder-visual {
+    height: 100%;
+    min-height: 500px;
+    background: #fcfcfc;
+    border: 2px dashed #eee;
+    border-radius: 15px;
+}
