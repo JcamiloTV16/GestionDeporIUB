@@ -52,8 +52,7 @@ CREATE TABLE usuarios (
     numero_documento VARCHAR(50) NOT NULL,
     facultad_id INTEGER NOT NULL,
     nombre VARCHAR(50) NOT NULL,
-    apellido VARCHAR(50) NOT NULL,
-    usuario VARCHAR(50) NOT NULL UNIQUE,
+    correo VARCHAR(100) NOT NULL UNIQUE,
     contrasena VARCHAR(255) NOT NULL,
     estado BOOLEAN DEFAULT TRUE,
     created_ TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -102,6 +101,7 @@ CREATE TABLE horarios (
     hora_inicio TIME,
     hora_fin TIME,
     lugar VARCHAR(150),
+    cupo INTEGER DEFAULT 20,
     estado BOOLEAN DEFAULT TRUE,
     created_ TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_ TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -158,8 +158,8 @@ INSERT INTO modulos (nombre, descripcion) VALUES
 ('Horarios', 'Agenda deportiva');
 
 -- Usuario Admin de prueba
-INSERT INTO usuarios (nombre, apellido, tipo_documento_id, numero_documento, facultad_id, usuario, contrasena, rol_id) 
-VALUES ('Juan', 'Torres', 1, '123456', 1, 'admin', 'admin123', 1);
+INSERT INTO usuarios (nombre, correo, tipo_documento_id, numero_documento, facultad_id, contrasena, rol_id) 
+VALUES ('Juan', 'admin@iub.edu.co', 1, '123456', 1, 'admin123', 1);
 
 -- Permisos 
 INSERT INTO permisos_rol (rol_id, modulo_id) VALUES (1,1), (1,2), (1,3), (1,4);

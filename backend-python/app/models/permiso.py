@@ -13,5 +13,5 @@ class PermisoRolCreate(PermisoRolBase):
 class PermisoRol(PermisoRolBase):
     id: Optional[int] = None
     estado: bool = True
-    create_: Optional[datetime] = Field(default_factory=get_colombia_time)
-    update_: Optional[datetime] = Field(default_factory=get_colombia_time)
+    created_: Optional[datetime] = Field(default_factory=get_colombia_time)
+    updated_: Optional[datetime] = Field(default_factory=get_colombia_time)

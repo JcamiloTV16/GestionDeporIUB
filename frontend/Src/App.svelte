@@ -1,5 +1,6 @@
 <script>
   import { rol } from "./Store.js";
+  import Header from "./Components/Header.svelte";
   import Login from "./Views/Login.svelte";
   import AdminPanel from "./Views/AdminPanel.svelte";
   import EntrenadorPanel from "./Views/EntrenadorPanel.svelte";
@@ -13,6 +14,7 @@
 
 <div class="app-container min-vh-100 d-flex flex-column">
   {#if !tipoRol}
+    <Header />
     <Login />
   {:else}
     <Navbar />

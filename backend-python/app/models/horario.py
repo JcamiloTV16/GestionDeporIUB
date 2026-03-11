@@ -5,6 +5,7 @@ from app.models.base_models import get_colombia_time
 
 class HorarioBase(BaseModel):
     deporte_id: int
+    entrenador_id: int
     dia_semana: str
     hora_inicio: time
     hora_fin: time

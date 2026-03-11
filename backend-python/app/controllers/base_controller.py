@@ -17,14 +17,12 @@ class BaseController:
             result = cursor.fetchall()
             
             colnames = [desc[0] for desc in cursor.description]
-            
             payload = []
             for row in result:
                 content = dict(zip(colnames, row))
                 payload.append(content)
                 
-            json_data = jsonable_encoder(payload)        
-            return {"resultado": json_data}
+            return {"resultado": jsonable_encoder(payload)}
                 
         except psycopg2.Error as err:
             if conn:

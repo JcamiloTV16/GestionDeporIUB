@@ -1,4 +1,3 @@
-// frontend/Src/Store.js
 import { writable, derived } from 'svelte/store';
 
 // --- BLOQUE: RECUPERACIÓN DE SESIÓN ---

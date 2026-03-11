@@ -10,13 +10,13 @@ class AuthController:
             conn = get_db_connection()
             cursor = conn.cursor()
             
-            # Buscar usuario por email con su rol
+            # Buscar usuario por correo con su rol
             cursor.execute("""
-                SELECT u.id, u.password, u.nombre, r.nombre_rol as rol_nombre 
+                SELECT u.id, u.contrasena, u.nombre, r.nombre_rol as rol_nombre 
                 FROM usuarios u
                 LEFT JOIN roles r ON u.rol_id = r.id
-                WHERE u.email = %s AND u.estado = TRUE
-            """, (login_data.email,))
+                WHERE u.correo = %s AND u.estado = TRUE
+            """, (login_data.correo,))
             user = cursor.fetchone()
             
             if not user:
@@ -30,13 +30,13 @@ class AuthController:
             
             # Verificación de contraseña
             authenticated = False
-            if login_data.password == db_password:
+            if login_data.contrasena == db_password:
                 authenticated = True
             else:
                 try:
                     # Intentar verificar si es un hash de bcrypt
                     if db_password.startswith('$2b$') or db_password.startswith('$2y$'):
-                        if verify_password(login_data.password, db_password):
+                        if verify_password(login_data.contrasena, db_password):
                             authenticated = True
                 except Exception:
                     pass
@@ -57,7 +57,7 @@ class AuthController:
                 "user": {
                     "id": user_id,
                     "nombre": user_name,
-                    "email": login_data.email,
+                    "email": login_data.correo,
                     "rol": role_name or "estudiante" # Fallback if no role assigned
                 }
             }

@@ -9,25 +9,25 @@ class UserBase(BaseModel):
     numero_documento: str
     facultad_id: int
     nombre: str
-    email: str
+    correo: str
 
 class UserCreate(UserBase):
-    password: str
+    contrasena: str
 
 class User(UserBase):
     id: Optional[int] = None
     estado: bool = True
-    create_: datetime = Field(default_factory=get_colombia_time)
-    update_: datetime = Field(default_factory=get_colombia_time)
+    created_: datetime = Field(default_factory=get_colombia_time)
+    updated_: datetime = Field(default_factory=get_colombia_time)
 
 class LoginRequest(BaseModel):
-    email: str
-    password: str
+    correo: str
+    contrasena: str
 
 class UserData(BaseModel):
     id: int
     nombre: str
-    email: str
+    correo: str
     rol: str
 
 class Token(BaseModel):
