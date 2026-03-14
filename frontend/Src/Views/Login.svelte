@@ -1,5 +1,5 @@
 <script>
-  import { rol, user } from "../Store.js";
+  import { rol, user, token } from "../Store.js";
   import { login } from "../Services/Api.js";
 
   let email = "";
@@ -20,6 +20,7 @@
       const data = await login(email, password);
       // Actualizar stores
       user.set(data.user);
+      token.set(data.access_token);
 
       // Normalizar el rol para que coincida con App.svelte
       let userRol = data.user.rol.toLowerCase();

@@ -5,6 +5,9 @@
   import UserForm from "../Components/UserForm.svelte";
   import CourseForm from "../Components/CourseForm.svelte";
   import "../Styles/AdminPanel.css";
+  import { API, obtenerUsuarios } from "../Services/Api.js";
+  import { token } from "../Store.js";
+  import { get } from "svelte/store";
 
   let vistaActual = "dashboard";
   let subVistaInterna = "lista";
@@ -15,6 +18,7 @@
   let roles = [];
   let deportes = [];
   let entrenadores = [];
+  let usuarios = [];
 
   const opcionesCurso = [
     { id: "lista", texto: "Lista", icono: "bi bi-list-ul" },
@@ -30,23 +34,29 @@
   onMount(async () => {
     try {
       // Fetch desde Node Backend (Puerto 3000)
-      const resTipos = await fetch("http://localhost:3000/tipos-documento");
+      const resTipos = await fetch(`http://localhost:3000/tipos-documento`);
       tiposDocumento = await resTipos.json();
 
-      const resFacultades = await fetch("http://localhost:3000/facultades");
+      const resFacultades = await fetch(`http://localhost:3000/facultades`);
       facultades = await resFacultades.json();
 
-      // Fetch desde Python Backend (Puerto 8000)
-      const resRoles = await fetch("http://localhost:8000/roles/");
+      // Fetch desde Python Backend
+      const resRoles = await fetch(`${API}/roles/`);
       roles = (await resRoles.json()).resultado || [];
+      console.log("Roles cargados:", roles);
 
-      const resDeportes = await fetch("http://localhost:8000/deportes/");
+      const resDeportes = await fetch(`${API}/deportes/`);
       deportes = (await resDeportes.json()).resultado || [];
 
-      const resEntrenadores = await fetch(
-        "http://localhost:8000/entrenadores/",
-      );
+      const resEntrenadores = await fetch(`${API}/entrenadores/`);
       entrenadores = (await resEntrenadores.json()).resultado || [];
+
+      // Fetch usuarios con token
+      const currentToken = get(token);
+      if (currentToken) {
+        const resUsuarios = await obtenerUsuarios(currentToken);
+        usuarios = resUsuarios.resultado || [];
+      }
     } catch (error) {
       console.error("Error cargando datos iniciales:", error);
     }
@@ -143,11 +153,24 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr
-                    ><td colspan="7" class="text-center py-4 text-muted"
-                      >No hay usuarios registrados en el momento.</td
-                    ></tr
-                  >
+                  {#if usuarios.length === 0}
+                    <tr><td colspan="7" class="text-center py-4 text-muted">No hay usuarios registrados en el momento.</td></tr>
+                  {:else}
+                    {#each usuarios as usuario}
+                      <tr>
+                        <td>{usuario.id}</td>
+                        <td>{usuario.nombre}</td>
+                        <td>{usuario.email || usuario.correo}</td>
+                        <td>{roles.find(r => r.id === usuario.rol_id)?.nombre || 'Desconocido'}</td>
+                        <td>{tiposDocumento.find(td => td.id === usuario.tipo_documento_id)?.nombre || 'Desconocido'}</td>
+                        <td>{usuario.numero_documento}</td>
+                        <td class="text-end">
+                          <button class="btn btn-sm btn-outline-primary me-2"><i class="bi bi-pencil"></i></button>
+                          <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                        </td>
+                      </tr>
+                    {/each}
+                  {/if}
                 </tbody>
               </table>
             </div>

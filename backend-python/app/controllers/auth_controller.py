@@ -12,10 +12,10 @@ class AuthController:
             
             # Buscar usuario por correo con su rol
             cursor.execute("""
-                SELECT u.id, u.contrasena, u.nombre, r.nombre_rol as rol_nombre 
+                SELECT u.id, u.password as contrasena, u.nombre, r.nombre_rol 
                 FROM usuarios u
                 LEFT JOIN roles r ON u.rol_id = r.id
-                WHERE u.correo = %s AND u.estado = TRUE
+                WHERE u.email = %s AND u.estado = TRUE
             """, (login_data.correo,))
             user = cursor.fetchone()
             
@@ -57,7 +57,7 @@ class AuthController:
                 "user": {
                     "id": user_id,
                     "nombre": user_name,
-                    "email": login_data.correo,
+                    "correo": login_data.correo,
                     "rol": role_name or "estudiante" # Fallback if no role assigned
                 }
             }

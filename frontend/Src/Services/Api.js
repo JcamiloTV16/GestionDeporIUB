@@ -1,4 +1,4 @@
-const API = "http://localhost:8000"
+export const API = "http://localhost:8000"
 
 export async function obtenerDeportes() {
   const res = await fetch(`${API}/deportes`)
@@ -31,7 +31,7 @@ export async function login(email, password) {
   const res = await fetch(`${API}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify({ correo: email, contrasena: password })
   })
 
   if (!res.ok) {
@@ -39,5 +39,14 @@ export async function login(email, password) {
     throw new Error(error.detail || "Error al iniciar sesión")
   }
 
+  return await res.json()
+}
+
+export async function obtenerUsuarios(token) {
+  const res = await fetch(`${API}/usuarios/`, {
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  })
   return await res.json()
 }
