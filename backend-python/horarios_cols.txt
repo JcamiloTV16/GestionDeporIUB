@@ -1,0 +1,9 @@
+update_
+deporte_id
+create_
+id
+hora_inicio
+hora_fin
+estado
+dia_semana
+lugar

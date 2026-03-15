@@ -7,15 +7,25 @@ class UserController(BaseController):
     def create_user(self, user: UserCreate):
         
         query = """
-            INSERT INTO usuarios (rol_id, tipo_documento_id, numero_documento, facultad_id, nombre, correo, contrasena, created_, updated_)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, 
+            INSERT INTO usuarios (rol_id, tipo_documento_id, numero_documento, facultad_id, nivel_educativo_id, programa_id, nombre, email, password, create_, update_)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 
                     (NOW() AT TIME ZONE 'America/Bogota'), 
                     (NOW() AT TIME ZONE 'America/Bogota'))
-            RETURNING id, created_, updated_
+            RETURNING id, create_, update_
         """
         
         hashed_password = get_password_hash(user.contrasena)
-        params = (user.rol_id, user.tipo_documento_id, user.numero_documento, user.facultad_id, user.nombre, user.correo, hashed_password)
+        params = (
+            user.rol_id, 
+            user.tipo_documento_id, 
+            user.numero_documento, 
+            user.facultad_id, 
+            user.nivel_educativo_id, 
+            user.programa_id, 
+            user.nombre, 
+            user.correo, 
+            hashed_password
+        )
         
         conn = None
         try:
@@ -31,6 +41,8 @@ class UserController(BaseController):
                 "tipo_documento_id": user.tipo_documento_id,
                 "numero_documento": user.numero_documento,
                 "facultad_id": user.facultad_id,
+                "nivel_educativo_id": user.nivel_educativo_id,
+                "programa_id": user.programa_id,
                 "nombre": user.nombre,
                 "correo": user.correo,
                 "created_": row[1],

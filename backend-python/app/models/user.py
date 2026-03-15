@@ -8,6 +8,8 @@ class UserBase(BaseModel):
     tipo_documento_id: int
     numero_documento: str
     facultad_id: int
+    nivel_educativo_id: Optional[int] = None
+    programa_id: Optional[int] = None
     nombre: str
     correo: str
 

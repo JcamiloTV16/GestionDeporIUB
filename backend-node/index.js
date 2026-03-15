@@ -35,12 +35,21 @@ app.get('/facultades', async (req, res) => {
 app.get('/programas', async (req, res) => {
   try {
     const query = `
-      SELECT p.id, p.nombre, f.nombre as facultad, p.estado 
+      SELECT p.id, p.nombre, p.facultad_id, f.nombre as facultad, 
+             p.id_nivel_edu, n.nombre as nivel_educativo, p.estado 
       FROM programas p 
       JOIN facultades f ON p.facultad_id = f.id
+      LEFT JOIN niveles_educativos n ON p.id_nivel_edu = n.id
       ORDER BY p.id ASC
     `;
     const result = await pool.query(query);
+    res.json(result.rows);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.get('/niveles-educativos', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM niveles_educativos ORDER BY id ASC');
     res.json(result.rows);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });

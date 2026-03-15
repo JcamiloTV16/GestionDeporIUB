@@ -50,3 +50,12 @@ export async function obtenerUsuarios(token) {
   })
   return await res.json()
 }
+
+export async function obtenerHorarios(token) {
+  const res = await fetch(`${API}/horarios/`, {
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  })
+  return await res.json()
+}

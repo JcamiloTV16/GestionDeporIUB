@@ -5,7 +5,7 @@
   import UserForm from "../Components/UserForm.svelte";
   import CourseForm from "../Components/CourseForm.svelte";
   import "../Styles/AdminPanel.css";
-  import { API, obtenerUsuarios } from "../Services/Api.js";
+  import { API, obtenerUsuarios, obtenerHorarios } from "../Services/Api.js";
   import { token } from "../Store.js";
   import { get } from "svelte/store";
 
@@ -19,6 +19,9 @@
   let deportes = [];
   let entrenadores = [];
   let usuarios = [];
+  let cursos = [];
+  let programas = [];
+  let nivelesEducativos = [];
 
   const opcionesCurso = [
     { id: "lista", texto: "Lista", icono: "bi bi-list-ul" },
@@ -40,6 +43,12 @@
       const resFacultades = await fetch(`http://localhost:3000/facultades`);
       facultades = await resFacultades.json();
 
+      const resNiveles = await fetch(`http://localhost:3000/niveles-educativos`);
+      nivelesEducativos = await resNiveles.json();
+
+      const resProgramas = await fetch(`http://localhost:3000/programas`);
+      programas = await resProgramas.json();
+
       // Fetch desde Python Backend
       const resRoles = await fetch(`${API}/roles/`);
       roles = (await resRoles.json()).resultado || [];
@@ -56,6 +65,11 @@
       if (currentToken) {
         const resUsuarios = await obtenerUsuarios(currentToken);
         usuarios = resUsuarios.resultado || [];
+        
+        const resCursos = await obtenerHorarios(currentToken);
+        cursos = resCursos.resultado || [];
+        console.log("Cursos cargados:", cursos);
+        console.log("Entrenadores cargados:", entrenadores);
       }
     } catch (error) {
       console.error("Error cargando datos iniciales:", error);
@@ -179,6 +193,8 @@
           <UserForm
             {tiposDocumento}
             {facultades}
+            {nivelesEducativos}
+            {programas}
             {roles}
             on:guardado={() => (subVistaInterna = "lista")}
           />
@@ -206,11 +222,26 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr
-                    ><td colspan="7" class="text-center py-4 text-muted"
-                      >No hay cursos registrados en el momento.</td
-                    ></tr
-                  >
+                  {#if cursos.length === 0}
+                    <tr><td colspan="7" class="text-center py-4 text-muted">No hay cursos registrados en el momento.</td></tr>
+                  {:else}
+                    {#each cursos as curso}
+                      <tr>
+                        <td>{curso.id}</td>
+                        <td>{deportes.find(d => d.id === curso.deporte_id)?.nombre || 'Desconocido'}</td>
+                        <td>
+                          {entrenadores.find(e => e.id == curso.entrenador_id)?.nombre_usuario || `Desconocido (ID: ${curso.entrenador_id})`}
+                        </td>
+                        <td>{curso.dia_semana}</td>
+                        <td>{curso.hora_inicio} - {curso.hora_fin}</td>
+                        <td>{curso.cupo}</td>
+                        <td class="text-end">
+                          <button class="btn btn-sm btn-outline-primary me-2"><i class="bi bi-pencil"></i></button>
+                          <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                        </td>
+                      </tr>
+                    {/each}
+                  {/if}
                 </tbody>
               </table>
             </div>

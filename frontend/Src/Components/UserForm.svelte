@@ -4,17 +4,33 @@
 
     export let tiposDocumento = [];
     export let facultades = [];
+    export let nivelesEducativos = [];
+    export let programas = [];
     export let roles = [];
 
     let nuevoUsuario = {
         nombre: "",
         correo: "",
         contrasena: "",
-        tipo_documento_id: "",
-        facultad_id: "",
-        rol_id: "",
+        tipo_documento_id: null,
+        facultad_id: null,
+        nivel_educativo_id: null,
+        programa_id: null,
+        rol_id: null,
         numero_documento: "",
     };
+
+    $: programasFiltrados = programas.filter(
+        (p) =>
+            p.facultad_id == nuevoUsuario.facultad_id &&
+            p.id_nivel_edu == nuevoUsuario.nivel_educativo_id,
+    );
+
+    // Limpiar campos dependientes al cambiar facultada o nivel
+    $: if (nuevoUsuario.facultad_id) {
+        // Al cambiar facultad, el programa y nivel deberían resetearse? 
+        // El usuario dijo: "al seleccionar facultad me debe pedir el nivel educativo despues de eso mostrarme los programas"
+    }
 
     async function guardarUsuario() {
         try {
@@ -22,16 +38,29 @@
                 !nuevoUsuario.nombre ||
                 !nuevoUsuario.correo ||
                 !nuevoUsuario.contrasena ||
-                !nuevoUsuario.rol_id
+                !nuevoUsuario.rol_id ||
+                !nuevoUsuario.tipo_documento_id ||
+                !nuevoUsuario.facultad_id ||
+                !nuevoUsuario.numero_documento
             ) {
-                alert("Por favor, complete los campos obligatorios.");
+                alert("Por favor, complete todos los campos obligatorios.");
                 return;
             }
+
+            // Preparar data para el backend (convertir strings vacíos o nulls adecuadamente)
+            const dataEnviar = {
+                ...nuevoUsuario,
+                tipo_documento_id: Number(nuevoUsuario.tipo_documento_id),
+                facultad_id: Number(nuevoUsuario.facultad_id),
+                rol_id: Number(nuevoUsuario.rol_id),
+                nivel_educativo_id: nuevoUsuario.nivel_educativo_id ? Number(nuevoUsuario.nivel_educativo_id) : null,
+                programa_id: nuevoUsuario.programa_id ? Number(nuevoUsuario.programa_id) : null
+            };
 
             const res = await fetch("http://localhost:8000/usuarios/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(nuevoUsuario),
+                body: JSON.stringify(dataEnviar),
             });
 
             if (res.ok) {
@@ -41,9 +70,11 @@
                     nombre: "",
                     correo: "",
                     contrasena: "",
-                    tipo_documento_id: "",
-                    facultad_id: "",
-                    rol_id: "",
+                    tipo_documento_id: null,
+                    facultad_id: null,
+                    nivel_educativo_id: null,
+                    programa_id: null,
+                    rol_id: null,
                     numero_documento: "",
                 };
             } else {
@@ -140,10 +171,51 @@
                     id="facultad-usuario"
                     class="form-select rounded-3 py-2"
                     bind:value={nuevoUsuario.facultad_id}
+                    on:change={() => {
+                        nuevoUsuario.nivel_educativo_id = "";
+                        nuevoUsuario.programa_id = "";
+                    }}
                 >
                     <option value="">Seleccione una facultad</option>
                     {#each facultades as fac}
                         <option value={fac.id}>{fac.nombre}</option>
+                    {/each}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label
+                    class="form-label fw-medium text-muted small"
+                    for="nivel-usuario">Nivel Educativo</label
+                >
+                <select
+                    id="nivel-usuario"
+                    class="form-select rounded-3 py-2"
+                    bind:value={nuevoUsuario.nivel_educativo_id}
+                    disabled={!nuevoUsuario.facultad_id}
+                    on:change={() => {
+                        nuevoUsuario.programa_id = "";
+                    }}
+                >
+                    <option value="">Seleccione un nivel</option>
+                    {#each nivelesEducativos as nivel}
+                        <option value={nivel.id}>{nivel.nombre}</option>
+                    {/each}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label
+                    class="form-label fw-medium text-muted small"
+                    for="programa-usuario">Programa Académico</label
+                >
+                <select
+                    id="programa-usuario"
+                    class="form-select rounded-3 py-2"
+                    bind:value={nuevoUsuario.programa_id}
+                    disabled={!nuevoUsuario.nivel_educativo_id}
+                >
+                    <option value="">Seleccione un programa</option>
+                    {#each programasFiltrados as prog}
+                        <option value={prog.id}>{prog.nombre}</option>
                     {/each}
                 </select>
             </div>
