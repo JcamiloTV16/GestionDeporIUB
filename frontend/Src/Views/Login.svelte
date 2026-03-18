@@ -1,6 +1,7 @@
 <script>
   import { rol, user, token } from "../Store.js";
   import { login } from "../Services/Api.js";
+  import "../Styles/Login.css";
 
   let email = "";
   let password = "";
@@ -105,55 +106,3 @@
     </div>
   </div>
 </div>
-
-<style>
-  :global(body) {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    min-height: 100vh;
-  }
-
-  .login-card {
-    max-width: 450px;
-    width: 100%;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-  }
-
-  .logo-circle {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(45deg, #0d6efd, #0dcaf0);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 10px 20px rgba(13, 110, 253, 0.3);
-  }
-
-  .form-control {
-    border-radius: 12px;
-    border: 1px solid #dee2e6;
-    padding: 1rem 0.75rem;
-  }
-
-  .form-control:focus {
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
-    border-color: #0d6efd;
-  }
-
-  .btn-primary {
-    border-radius: 12px;
-    background: linear-gradient(45deg, #0d6efd, #0b5ed7);
-    border: none;
-  }
-
-  .btn-primary:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(13, 110, 253, 0.25);
-  }
-
-  .transition-all {
-    transition: all 0.3s ease;
-  }
-</style>

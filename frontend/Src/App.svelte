@@ -14,7 +14,6 @@
 
 <div class="app-container min-vh-100 d-flex flex-column">
   {#if !tipoRol}
-    <Header />
     <Login />
   {:else}
     <Navbar />

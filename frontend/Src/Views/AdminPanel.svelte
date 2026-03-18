@@ -5,7 +5,25 @@
   import UserForm from "../Components/UserForm.svelte";
   import CourseForm from "../Components/CourseForm.svelte";
   import "../Styles/AdminPanel.css";
-  import { API, obtenerUsuarios, obtenerHorarios } from "../Services/Api.js";
+  import {
+    API,
+    obtenerUsuarios,
+    actualizarUsuario,
+    eliminarUsuario,
+    obtenerHorarios,
+    obtenerInscritosPorHorario,
+    obtenerDeportes,
+    agregarDeporte,
+    eliminarDeporte,
+    actualizarDeporte,
+    obtenerAuditorias,
+  } from "../Services/Api.js";
+  import DashboardInfo from "../Components/dashboardInfo.svelte";
+  import ListaUsuarios from "../Components/listaUsuarios.svelte";
+  import ListaCursos from "../Components/listaCursos.svelte";
+  import ListaEstudiantes from "../Components/listaEstudiantes.svelte";
+  import GestionDepor from "../Components/gestionDepor.svelte";
+  import ListaAuditorias from "../Components/listaAuditorias.svelte";
   import { token } from "../Store.js";
   import { get } from "svelte/store";
 
@@ -22,6 +40,15 @@
   let cursos = [];
   let programas = [];
   let nivelesEducativos = [];
+  let auditorias = [];
+  let cursoSeleccionado = null;
+  let inscritos = [];
+  let cargandoInscritos = false;
+  let usuarioAEditar = null;
+
+  let nuevoDeporte = { nombre: "", descripcion: "" };
+  let editandoId = null;
+  let mensajeEstado = { texto: "", tipo: "" };
 
   const opcionesCurso = [
     { id: "lista", texto: "Lista", icono: "bi bi-list-ul" },
@@ -34,38 +61,54 @@
     { id: "crear", texto: "Crear", icono: "bi bi-person-plus" },
   ];
 
+  const opcionesDeporte = [
+    { id: "lista", texto: "Lista", icono: "bi bi-list-ul" },
+    { id: "crear", texto: "Crear", icono: "bi bi-plus-circle" },
+  ];
+
+  async function cargarDeportes() {
+    try {
+      const res = await obtenerDeportes();
+      deportes = res.resultado || [];
+    } catch (error) {
+      console.error("Error al cargar deportes:", error);
+    }
+  }
+
+  //carga de datos y coneción con las bases de datos
   onMount(async () => {
     try {
-      // Fetch desde Node Backend (Puerto 3000)
+      // backend node (Puerto 3000)
       const resTipos = await fetch(`http://localhost:3000/tipos-documento`);
       tiposDocumento = await resTipos.json();
 
       const resFacultades = await fetch(`http://localhost:3000/facultades`);
       facultades = await resFacultades.json();
 
-      const resNiveles = await fetch(`http://localhost:3000/niveles-educativos`);
+      const resNiveles = await fetch(
+        `http://localhost:3000/niveles-educativos`,
+      );
       nivelesEducativos = await resNiveles.json();
 
       const resProgramas = await fetch(`http://localhost:3000/programas`);
       programas = await resProgramas.json();
 
-      // Fetch desde Python Backend
+      // Backend Python
       const resRoles = await fetch(`${API}/roles/`);
       roles = (await resRoles.json()).resultado || [];
       console.log("Roles cargados:", roles);
 
-      const resDeportes = await fetch(`${API}/deportes/`);
-      deportes = (await resDeportes.json()).resultado || [];
+      await cargarDeportes();
 
       const resEntrenadores = await fetch(`${API}/entrenadores/`);
       entrenadores = (await resEntrenadores.json()).resultado || [];
 
-      // Fetch usuarios con token
+      // tokens de usuarios
       const currentToken = get(token);
       if (currentToken) {
         const resUsuarios = await obtenerUsuarios(currentToken);
         usuarios = resUsuarios.resultado || [];
-        
+
         const resCursos = await obtenerHorarios(currentToken);
         cursos = resCursos.resultado || [];
         console.log("Cursos cargados:", cursos);
@@ -76,9 +119,107 @@
     }
   });
 
+  async function cargarAuditorias() {
+    try {
+      const currentToken = get(token);
+      if (currentToken) {
+        const res = await obtenerAuditorias(currentToken);
+        auditorias = res.resultado || [];
+      }
+    } catch (error) {
+      console.error("Error al cargar auditorias:", error);
+    }
+  }
+
   function cambiarVistaPrincipal(vista) {
     vistaActual = vista;
     subVistaInterna = "lista";
+    if (vista !== "cursos") {
+      cursoSeleccionado = null;
+      inscritos = [];
+    }
+    if (vista === "auditorias") {
+      cargarAuditorias();
+    }
+  }
+
+  async function verInscritos(curso) {
+    cursoSeleccionado = curso;
+    subVistaInterna = "inscritos";
+    cargandoInscritos = true;
+    try {
+      const currentToken = get(token);
+      const res = await obtenerInscritosPorHorario(curso.id, currentToken);
+      inscritos = res.resultado || [];
+    } catch (error) {
+      console.error("Error cargando inscritos:", error);
+    } finally {
+      cargandoInscritos = false;
+    }
+  }
+
+  async function manejarGuardarDeporte() {
+    try {
+      if (editandoId) {
+        await actualizarDeporte(editandoId, nuevoDeporte);
+        mensajeEstado = {
+          texto: "Deporte actualizado con éxito",
+          tipo: "success",
+        };
+      } else {
+        await agregarDeporte(nuevoDeporte);
+        mensajeEstado = {
+          texto: "Deporte guardado con éxito",
+          tipo: "success",
+        };
+      }
+      nuevoDeporte = { nombre: "", descripcion: "" };
+      editandoId = null;
+      await cargarDeportes();
+      subVistaInterna = "lista";
+    } catch (error) {
+      mensajeEstado = { texto: "Error al guardar deporte", tipo: "danger" };
+    }
+    setTimeout(() => (mensajeEstado = { texto: "", tipo: "" }), 3000);
+  }
+
+  function prepararEdicionDeporte(deporte) {
+    nuevoDeporte = { nombre: deporte.nombre, descripcion: deporte.descripcion };
+    editandoId = deporte.id;
+    subVistaInterna = "crear";
+  }
+
+  async function manejarEliminarDeporte(id) {
+    if (!confirm("¿Estás seguro de eliminar este deporte?")) return;
+    try {
+      await eliminarDeporte(id);
+      mensajeEstado = { texto: "Deporte eliminado", tipo: "success" };
+      await cargarDeportes();
+    } catch (error) {
+      mensajeEstado = { texto: "Error al eliminar", tipo: "danger" };
+    }
+    setTimeout(() => (mensajeEstado = { texto: "", tipo: "" }), 3000);
+  }
+
+  async function manejarEliminarUsuario(id) {
+    if (!confirm("¿Estás seguro de eliminar este usuario?")) return;
+    try {
+      const currentToken = get(token);
+      await eliminarUsuario(id, currentToken);
+      mensajeEstado = { texto: "Usuario eliminado", tipo: "success" };
+      // Recargar lista
+      const resUsuarios = await obtenerUsuarios(currentToken);
+      usuarios = resUsuarios.resultado || [];
+    } catch (error) {
+      console.error("Error al eliminar usuario:", error);
+      mensajeEstado = { texto: "Error al eliminar usuario", tipo: "danger" };
+    }
+    setTimeout(() => (mensajeEstado = { texto: "", tipo: "" }), 3000);
+  }
+
+  function prepararEdicionUsuario(usuario) {
+    usuarioAEditar = usuario;
+    subVistaInterna = "crear";
   }
 
   function manejarSalida() {
@@ -124,27 +265,9 @@
       <i class="bi bi-calendar me-2"></i>Auditorias
     </button>
   </div>
-
   <main class="contenido-principal p-4">
     {#if vistaActual === "dashboard"}
-      <section class="animate__animated animate__fadeIn">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h2 class="fw-bold text-dark">Análisis de Datos (PowerBI)</h2>
-          <span class="badge bg-success-subtle text-success border px-3 py-2"
-            >Datos en Tiempo Real</span
-          >
-        </div>
-        <div class="tarjeta-reporte shadow-sm rounded-4 bg-white p-2">
-          <div
-            class="placeholder-visual d-flex flex-column align-items-center justify-content-center"
-          >
-            <i class="bi bi-cpu fs-1 text-primary mb-3"></i>
-            <p class="text-muted fw-medium">
-              Esperando conexión con el reporte de PowerBI...
-            </p>
-          </div>
-        </div>
-      </section>
+      <DashboardInfo />
     {:else if vistaActual === "usuarios"}
       <section class="animate__animated animate__fadeIn">
         <h2 class="fw-bold text-dark mb-4">Administrar Usuarios</h2>
@@ -155,40 +278,13 @@
         />
 
         {#if subVistaInterna === "lista"}
-          <div class="card shadow-sm border-0 rounded-4 p-4 mt-2">
-            <h5 class="fw-bold mb-3">Lista de Usuarios</h5>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light text-muted">
-                  <tr>
-                    <th>ID</th><th>Nombre</th><th>Correo</th><th>Rol</th><th
-                      >Tipo Documento</th
-                    ><th>Documento</th><th class="text-end">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {#if usuarios.length === 0}
-                    <tr><td colspan="7" class="text-center py-4 text-muted">No hay usuarios registrados en el momento.</td></tr>
-                  {:else}
-                    {#each usuarios as usuario}
-                      <tr>
-                        <td>{usuario.id}</td>
-                        <td>{usuario.nombre}</td>
-                        <td>{usuario.email || usuario.correo}</td>
-                        <td>{roles.find(r => r.id === usuario.rol_id)?.nombre || 'Desconocido'}</td>
-                        <td>{tiposDocumento.find(td => td.id === usuario.tipo_documento_id)?.nombre || 'Desconocido'}</td>
-                        <td>{usuario.numero_documento}</td>
-                        <td class="text-end">
-                          <button class="btn btn-sm btn-outline-primary me-2"><i class="bi bi-pencil"></i></button>
-                          <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                        </td>
-                      </tr>
-                    {/each}
-                  {/if}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <ListaUsuarios 
+            {usuarios} 
+            {roles} 
+            {tiposDocumento} 
+            on:editar={(e) => prepararEdicionUsuario(e.detail)}
+            on:eliminar={(e) => manejarEliminarUsuario(e.detail)}
+          />
         {:else if subVistaInterna === "crear"}
           <UserForm
             {tiposDocumento}
@@ -196,7 +292,14 @@
             {nivelesEducativos}
             {programas}
             {roles}
-            on:guardado={() => (subVistaInterna = "lista")}
+            {usuarioAEditar}
+            on:guardado={async () => {
+              usuarioAEditar = null;
+              subVistaInterna = "lista";
+              const currentToken = get(token);
+              const resUsuarios = await obtenerUsuarios(currentToken);
+              usuarios = resUsuarios.resultado || [];
+            }}
           />
         {/if}
       </section>
@@ -210,42 +313,12 @@
         />
 
         {#if subVistaInterna === "lista"}
-          <div class="card shadow-sm border-0 rounded-4 p-4 mt-2">
-            <h5 class="fw-bold mb-3">Lista de Cursos Activos</h5>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light text-muted">
-                  <tr>
-                    <th>ID</th><th>Deporte</th><th>Entrenador</th><th>Días</th
-                    ><th>Hora</th><th>Cupo</th><th class="text-end">Acciones</th
-                    >
-                  </tr>
-                </thead>
-                <tbody>
-                  {#if cursos.length === 0}
-                    <tr><td colspan="7" class="text-center py-4 text-muted">No hay cursos registrados en el momento.</td></tr>
-                  {:else}
-                    {#each cursos as curso}
-                      <tr>
-                        <td>{curso.id}</td>
-                        <td>{deportes.find(d => d.id === curso.deporte_id)?.nombre || 'Desconocido'}</td>
-                        <td>
-                          {entrenadores.find(e => e.id == curso.entrenador_id)?.nombre_usuario || `Desconocido (ID: ${curso.entrenador_id})`}
-                        </td>
-                        <td>{curso.dia_semana}</td>
-                        <td>{curso.hora_inicio} - {curso.hora_fin}</td>
-                        <td>{curso.cupo}</td>
-                        <td class="text-end">
-                          <button class="btn btn-sm btn-outline-primary me-2"><i class="bi bi-pencil"></i></button>
-                          <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                        </td>
-                      </tr>
-                    {/each}
-                  {/if}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <ListaCursos
+            {cursos}
+            {deportes}
+            {entrenadores}
+            on:verInscritos={(e) => verInscritos(e.detail)}
+          />
         {:else if subVistaInterna === "crear"}
           <CourseForm
             {deportes}
@@ -253,36 +326,47 @@
             on:guardado={() => (subVistaInterna = "lista")}
           />
         {:else if subVistaInterna === "inscritos"}
-          <div
-            class="card shadow-sm border-0 rounded-4 p-5 mt-2 text-center bg-light"
-          >
-            <i class="bi bi-people-fill display-3 text-secondary mb-3"></i>
-            <h4 class="fw-bold text-dark mb-2">Consulta de Inscritos</h4>
-            <p class="text-muted mx-auto" style="max-width: 400px;">
-              Seleccione un curso activo desde la pestaña de Lista para
-              visualizar la lista detallada de estudiantes inscritos.
-            </p>
-          </div>
+          <ListaEstudiantes
+            {cursoSeleccionado}
+            {inscritos}
+            {deportes}
+            {cargandoInscritos}
+            on:volver={() => {
+              cursoSeleccionado = null;
+              subVistaInterna = "lista";
+            }}
+          />
         {/if}
       </section>
-
-      <!-- Vista Gestión deportes -->
     {:else if vistaActual === "deportes"}
       <section class="animate__animated animate__fadeIn">
         <h2 class="fw-bold text-dark mb-4">Administrar Deportes</h2>
-        <p class="text-muted">
-          Utilice este módulo para agregar o editar los deportes ofrecidos por
-          la IUB.
-        </p>
-      </section>
+        <SubNav
+          opciones={opcionesDeporte}
+          vistaActiva={subVistaInterna}
+          on:cambio={(e) => (subVistaInterna = e.detail)}
+        />
 
-      <!-- Vista Auditorias -->
+        <GestionDepor
+          {subVistaInterna}
+          {deportes}
+          {nuevoDeporte}
+          {editandoId}
+          {mensajeEstado}
+          on:guardar={manejarGuardarDeporte}
+          on:editar={(e) => prepararEdicionDeporte(e.detail)}
+          on:eliminar={(e) => manejarEliminarDeporte(e.detail)}
+          on:cancelar={() => {
+            editandoId = null;
+            nuevoDeporte = { nombre: "", descripcion: "" };
+            subVistaInterna = "lista";
+          }}
+        />
+      </section>
     {:else if vistaActual === "auditorias"}
       <section class="animate__animated animate__fadeIn">
-        <h2 class="fw-bold text-dark mb-4">Administrar Auditorias</h2>
-        <p class="text-muted">
-          Utilice este módulo para agregar o editar las auditorias de la IUB.
-        </p>
+        <h2 class="fw-bold text-dark mb-4">Registro de Auditoría</h2>
+        <ListaAuditorias {auditorias} {usuarios} />
       </section>
     {/if}
   </main>

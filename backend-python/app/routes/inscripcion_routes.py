@@ -12,6 +12,10 @@ async def get_inscripciones():
 async def get_inscripcion(id: int):
     return inscripcion_controller.get_by_id(id)
 
+@router.get("/inscripciones/horario/{horario_id}", tags=["Inscripciones"])
+async def get_estudiantes_por_horario(horario_id: int):
+    return inscripcion_controller.get_estudiantes_por_horario(horario_id)
+
 @router.post("/inscripciones/", response_model=Inscripcion, tags=["Inscripciones"])
 async def create_inscripcion(inscripcion: InscripcionCreate):
     return inscripcion_controller.create(inscripcion.dict(exclude_unset=True))

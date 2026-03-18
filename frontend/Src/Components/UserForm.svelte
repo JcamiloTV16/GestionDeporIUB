@@ -7,6 +7,7 @@
     export let nivelesEducativos = [];
     export let programas = [];
     export let roles = [];
+    export let usuarioAEditar = null;
 
     let nuevoUsuario = {
         nombre: "",
@@ -19,6 +20,21 @@
         rol_id: null,
         numero_documento: "",
     };
+
+    // Si recibimos un usuario para editar, poblar el formulario
+    $: if (usuarioAEditar) {
+        nuevoUsuario = {
+            nombre: usuarioAEditar.nombre,
+            correo: usuarioAEditar.email || usuarioAEditar.correo,
+            contrasena: "", // No mostramos la contraseña actual por seguridad
+            tipo_documento_id: usuarioAEditar.tipo_documento_id,
+            facultad_id: usuarioAEditar.facultad_id,
+            nivel_educativo_id: usuarioAEditar.nivel_educativo_id,
+            programa_id: usuarioAEditar.programa_id,
+            rol_id: usuarioAEditar.rol_id,
+            numero_documento: usuarioAEditar.numero_documento,
+        };
+    }
 
     $: programasFiltrados = programas.filter(
         (p) =>
@@ -37,7 +53,7 @@
             if (
                 !nuevoUsuario.nombre ||
                 !nuevoUsuario.correo ||
-                !nuevoUsuario.contrasena ||
+                (!usuarioAEditar && !nuevoUsuario.contrasena) || // Contraseña solo obligatoria al crear
                 !nuevoUsuario.rol_id ||
                 !nuevoUsuario.tipo_documento_id ||
                 !nuevoUsuario.facultad_id ||
@@ -57,26 +73,39 @@
                 programa_id: nuevoUsuario.programa_id ? Number(nuevoUsuario.programa_id) : null
             };
 
-            const res = await fetch("http://localhost:8000/usuarios/", {
-                method: "POST",
+            const url = usuarioAEditar 
+                ? `http://localhost:8000/usuarios/${usuarioAEditar.id}`
+                : "http://localhost:8000/usuarios/";
+            
+            const method = usuarioAEditar ? "PUT" : "POST";
+
+            // Si es edición y no hay contraseña, no la enviamos
+            if (usuarioAEditar && !nuevoUsuario.contrasena) {
+                delete dataEnviar.contrasena;
+            }
+
+            const res = await fetch(url, {
+                method: method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(dataEnviar),
             });
 
             if (res.ok) {
-                alert("Usuario guardado exitosamente.");
+                alert(usuarioAEditar ? "Usuario actualizado exitosamente." : "Usuario guardado exitosamente.");
                 dispatch("guardado");
-                nuevoUsuario = {
-                    nombre: "",
-                    correo: "",
-                    contrasena: "",
-                    tipo_documento_id: null,
-                    facultad_id: null,
-                    nivel_educativo_id: null,
-                    programa_id: null,
-                    rol_id: null,
-                    numero_documento: "",
-                };
+                if (!usuarioAEditar) {
+                    nuevoUsuario = {
+                        nombre: "",
+                        correo: "",
+                        contrasena: "",
+                        tipo_documento_id: null,
+                        facultad_id: null,
+                        nivel_educativo_id: null,
+                        programa_id: null,
+                        rol_id: null,
+                        numero_documento: "",
+                    };
+                }
             } else {
                 const err = await res.json();
                 alert("Error: " + (err.detail || "No se pudo guardar"));
@@ -129,7 +158,7 @@
                     id="password-usuario"
                     type="password"
                     class="form-control rounded-3 py-2"
-                    placeholder="Mínimo 8 caracteres"
+                    placeholder={usuarioAEditar ? "Dejar en blanco para mantener actual" : "Mínimo 8 caracteres"}
                     bind:value={nuevoUsuario.contrasena}
                 />
             </div>
@@ -241,7 +270,7 @@
                 type="submit"
                 class="btn btn-primary rounded-3 px-4 py-2 fw-bold"
             >
-                <i class="bi bi-person-check me-1"></i> Guardar Usuario
+                <i class="bi bi-person-check me-1"></i> {usuarioAEditar ? "Actualizar Usuario" : "Guardar Usuario"}
             </button>
         </div>
     </form>

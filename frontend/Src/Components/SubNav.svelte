@@ -27,16 +27,3 @@
         </button>
     {/each}
 </div>
-
-<style>
-    .sub-nav-container {
-        width: fit-content;
-        border: 1px solid #eee;
-    }
-    .btn {
-        border-radius: 8px;
-        font-weight: 500;
-        transition: all 0.2s;
-        font-size: 0.9rem;
-    }
-</style>
