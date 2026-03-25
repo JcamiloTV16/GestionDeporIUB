@@ -16,7 +16,6 @@
     agregarDeporte,
     eliminarDeporte,
     actualizarDeporte,
-    obtenerAuditorias,
     obtenerUsuariosInactivos,
     reactivarUsuario,
     obtenerDeportesInactivos,
@@ -48,7 +47,6 @@
   let cursos = [];
   let programas = [];
   let nivelesEducativos = [];
-  let auditorias = [];
   let usuariosInactivos = [];
   let deportesInactivos = [];
   let cursosInactivos = [];
@@ -131,9 +129,6 @@
     try {
       const currentToken = get(token);
       if (currentToken) {
-        const res = await obtenerAuditorias(currentToken);
-        auditorias = res.resultado || [];
-        
         const resInactivos = await obtenerUsuariosInactivos(currentToken);
         usuariosInactivos = resInactivos.resultado || [];
 
@@ -490,10 +485,8 @@
       </section>
     {:else if vistaActual === "auditorias"}
       <section class="animate__animated animate__fadeIn">
-        <h2 class="fw-bold text-dark mb-4">Registro de Auditoría y Usuarios Inactivos</h2>
+        <h2 class="fw-bold text-dark mb-4">Auditoría de Usuarios, Cursos y Deportes Inactivos</h2>
         <ListaAuditorias 
-          {auditorias} 
-          {usuarios} 
           {usuariosInactivos}
           {deportesInactivos}
           {cursosInactivos}

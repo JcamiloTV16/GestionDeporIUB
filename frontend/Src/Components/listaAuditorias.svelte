@@ -2,8 +2,6 @@
   import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher();
 
-  export let auditorias = [];
-  export let usuarios = [];
   export let usuariosInactivos = [];
   export let deportesInactivos = [];
   export let cursosInactivos = [];
