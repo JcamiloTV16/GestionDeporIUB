@@ -1,5 +1,6 @@
 <script>
   let mensaje = "";
+  let abierto = false;
   let mensajes = [
     {
       text: "¡Hola! Soy tu Asistente Virtual UniBarranquilla. ¿En qué puedo ayudarte hoy?",
@@ -37,70 +38,94 @@
 
     setTimeout(() => {
       mensajes = [...mensajes, { text: respuesta, from: "bot" }];
-      // Scroll to bottom
       const body = document.getElementById("chatBody");
       if (body) setTimeout(() => (body.scrollTop = body.scrollHeight), 100);
     }, 500);
   }
 </script>
 
-<div
-  class="chat-widget shadow-lg border-0 rounded-4 overflow-hidden bg-white animate__animated animate__fadeInUp"
->
-  <div
-    class="chat-header bg-primary p-3 text-white d-flex align-items-center justify-content-between"
-  >
-    <div class="d-flex align-items-center">
-      <div
-        class="bot-avatar me-2 bg-white rounded-circle d-flex align-items-center justify-content-center"
-        style="width: 32px; height: 32px;"
-      >
-        <i class="bi bi-robot text-primary"></i>
-      </div>
-      <h6 class="m-0 fw-bold">Asistente Virtual</h6>
-    </div>
-    <div class="status-dot"></div>
-  </div>
-
-  <div class="chat-body p-3" id="chatBody">
-    {#each mensajes as msg}
-      <div class="message-wrapper mb-3 {msg.from === 'bot' ? '' : 'text-end'}">
+{#if !abierto}
+  <!-- Botón flotante para abrir el chat -->
+  <button class="chat-fab shadow-lg" on:click={() => (abierto = true)} title="Abrir asistente">
+    <i class="bi bi-chat-dots-fill"></i>
+  </button>
+{:else}
+  <!-- Chat abierto -->
+  <div class="chat-widget shadow-lg border-0 rounded-4 overflow-hidden bg-white animate__animated animate__fadeInUp animate__faster">
+    <div class="chat-header bg-primary p-3 text-white d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
         <div
-          class="message-bubble d-inline-block px-3 py-2 rounded-4 shadow-sm {msg.from ===
-          'bot'
-            ? 'bg-light text-dark'
-            : 'bg-primary text-white'}"
+          class="bot-avatar me-2 bg-white rounded-circle d-flex align-items-center justify-content-center"
+          style="width: 32px; height: 32px;"
         >
-          {msg.text}
+          <i class="bi bi-robot text-primary"></i>
         </div>
+        <h6 class="m-0 fw-bold">Asistente Virtual</h6>
       </div>
-    {/each}
-  </div>
+      <button class="btn btn-sm text-white p-0 minimize-btn" on:click={() => (abierto = false)} title="Minimizar">
+        <i class="bi bi-dash-lg fs-5"></i>
+      </button>
+    </div>
 
-  <div class="chat-footer p-2 bg-light d-flex gap-2">
-    <input
-      id="chatInput"
-      class="form-control rounded-pill border-0 shadow-none px-3"
-      placeholder="Escribe algo..."
-      bind:value={mensaje}
-      on:keydown={(e) => e.key === "Enter" && enviar()}
-    />
-    <button
-      class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
-      on:click={enviar}
-      style="width: 38px; height: 38px;"
-    >
-      <i
-        class="bi bi-send-fill"
-        style="transform: translateX(-1px) translateY(1px)"
-      ></i>
-    </button>
+    <div class="chat-body p-3" id="chatBody">
+      {#each mensajes as msg}
+        <div class="message-wrapper mb-3 {msg.from === 'bot' ? '' : 'text-end'}">
+          <div
+            class="message-bubble d-inline-block px-3 py-2 rounded-4 shadow-sm {msg.from ===
+            'bot'
+              ? 'bg-light text-dark'
+              : 'bg-primary text-white'}"
+          >
+            {msg.text}
+          </div>
+        </div>
+      {/each}
+    </div>
+
+    <div class="chat-footer p-2 bg-light d-flex gap-2">
+      <input
+        id="chatInput"
+        class="form-control rounded-pill border-0 shadow-none px-3"
+        placeholder="Escribe algo..."
+        bind:value={mensaje}
+        on:keydown={(e) => e.key === "Enter" && enviar()}
+      />
+      <button
+        class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
+        on:click={enviar}
+        style="width: 38px; height: 38px;"
+      >
+        <i
+          class="bi bi-send-fill"
+          style="transform: translateX(-1px) translateY(1px)"
+        ></i>
+      </button>
+    </div>
   </div>
-</div>
+{/if}
 
 <style>
+  .chat-fab {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    color: white;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .chat-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(13, 110, 253, 0.4) !important;
+  }
   .chat-widget {
     border: 1px solid #eee;
+    width: 100%;
   }
   .chat-body {
     height: 300px;
@@ -111,12 +136,12 @@
   .chat-header {
     border-bottom: 2px solid rgba(0, 0, 0, 0.05);
   }
-  .status-dot {
-    width: 10px;
-    height: 10px;
-    background-color: #4cd964;
-    border-radius: 50%;
-    border: 2px solid white;
+  .minimize-btn {
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+  .minimize-btn:hover {
+    opacity: 1;
   }
   .message-bubble {
     max-width: 85%;

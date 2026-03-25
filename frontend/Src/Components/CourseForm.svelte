@@ -4,6 +4,7 @@
 
     export let deportes = [];
     export let entrenadores = [];
+    export let cursoAEditar = null;
 
     let nuevoCurso = {
         deporte_id: "",
@@ -14,6 +15,18 @@
         lugar: "",
         cupo: 20,
     };
+
+    $: if (cursoAEditar) {
+        nuevoCurso = {
+            deporte_id: cursoAEditar.deporte_id || "",
+            entrenador_id: cursoAEditar.entrenador_id || "",
+            dia_semana: cursoAEditar.dia_semana || "",
+            hora_inicio: cursoAEditar.hora_inicio || "",
+            hora_fin: cursoAEditar.hora_fin || "",
+            lugar: cursoAEditar.lugar || "",
+            cupo: cursoAEditar.cupo || 20,
+        };
+    }
 
     async function guardarCurso() {
         try {
@@ -28,24 +41,24 @@
                 return;
             }
 
-            const res = await fetch("http://localhost:8000/horarios/", {
-                method: "POST",
+            let url = "http://localhost:8000/horarios/";
+            let method = "POST";
+
+            if (cursoAEditar) {
+                url = `http://localhost:8000/horarios/${cursoAEditar.id}`;
+                method = "PUT";
+            }
+
+            const res = await fetch(url, {
+                method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(nuevoCurso),
             });
 
             if (res.ok) {
-                alert("Curso/Horario creado exitosamente.");
+                alert(cursoAEditar ? "Curso actualizado exitosamente." : "Curso/Horario creado exitosamente.");
                 dispatch("guardado");
-                nuevoCurso = {
-                    deporte_id: "",
-                    entrenador_id: "",
-                    dia_semana: "",
-                    hora_inicio: "",
-                    hora_fin: "",
-                    lugar: "",
-                    cupo: 20,
-                };
+                resetForm();
             } else {
                 const err = await res.json();
                 alert("Error: " + (err.detail || "No se pudo guardar"));
@@ -54,12 +67,30 @@
             alert("Error de conexión");
         }
     }
+
+    function resetForm() {
+        nuevoCurso = {
+            deporte_id: "",
+            entrenador_id: "",
+            dia_semana: "",
+            hora_inicio: "",
+            hora_fin: "",
+            lugar: "",
+            cupo: 20,
+        };
+        cursoAEditar = null;
+    }
+
+    function cancelar() {
+        resetForm();
+        dispatch("cancelar");
+    }
 </script>
 
 <div class="card shadow-sm border-0 rounded-4 p-4 mt-2">
     <h5 class="fw-bold mb-4">
-        <i class="bi bi-plus-circle me-2 text-primary"></i>Formulario de Nuevo
-        Curso
+        <i class="bi bi-{cursoAEditar ? 'pencil-square' : 'plus-circle'} me-2 text-primary"></i>
+        {cursoAEditar ? "Editar Curso" : "Formulario de Nuevo Curso"}
     </h5>
     <form on:submit|preventDefault={guardarCurso}>
         <div class="row g-4">
@@ -160,12 +191,17 @@
                 />
             </div>
         </div>
-        <div class="mt-4 pt-2 d-flex justify-content-end">
+        <div class="mt-4 pt-2 d-flex justify-content-end gap-2">
+            {#if cursoAEditar}
+                <button type="button" class="btn btn-secondary rounded-3 px-4 py-2" on:click={cancelar}>
+                    Cancelar
+                </button>
+            {/if}
             <button
                 type="submit"
                 class="btn btn-primary rounded-3 px-4 py-2 fw-bold"
             >
-                <i class="bi bi-save me-1"></i> Guardar Curso
+                <i class="bi bi-save me-1"></i> {cursoAEditar ? "Actualizar Curso" : "Guardar Curso"}
             </button>
         </div>
     </form>

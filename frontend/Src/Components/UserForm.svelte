@@ -1,5 +1,8 @@
 <script>
     import { createEventDispatcher } from "svelte";
+    import { token } from "../Store.js";
+    import { get } from "svelte/store";
+    import { API } from "../Services/Api.js";
     const dispatch = createEventDispatcher();
 
     export let tiposDocumento = [];
@@ -11,8 +14,8 @@
 
     let nuevoUsuario = {
         nombre: "",
-        correo: "",
-        contrasena: "",
+        email: "",
+        password: "",
         tipo_documento_id: null,
         facultad_id: null,
         nivel_educativo_id: null,
@@ -21,12 +24,15 @@
         numero_documento: "",
     };
 
-    // Si recibimos un usuario para editar, poblar el formulario
-    $: if (usuarioAEditar) {
+    let idEditadoAnterior = null;
+
+    // Si recibimos un usuario para editar, poblar el formulario (solo una vez por ID)
+    $: if (usuarioAEditar && usuarioAEditar.id !== idEditadoAnterior) {
+        idEditadoAnterior = usuarioAEditar.id;
         nuevoUsuario = {
             nombre: usuarioAEditar.nombre,
-            correo: usuarioAEditar.email || usuarioAEditar.correo,
-            contrasena: "", // No mostramos la contraseña actual por seguridad
+            email: usuarioAEditar.email || usuarioAEditar.correo,
+            password: "", // No mostramos la contraseña actual por seguridad
             tipo_documento_id: usuarioAEditar.tipo_documento_id,
             facultad_id: usuarioAEditar.facultad_id,
             nivel_educativo_id: usuarioAEditar.nivel_educativo_id,
@@ -38,22 +44,25 @@
 
     $: programasFiltrados = programas.filter(
         (p) =>
-            p.facultad_id == nuevoUsuario.facultad_id &&
-            p.id_nivel_edu == nuevoUsuario.nivel_educativo_id,
+            String(p.facultad_id) === String(nuevoUsuario.facultad_id) &&
+            String(p.id_nivel_edu) === String(nuevoUsuario.nivel_educativo_id)
     );
 
-    // Limpiar campos dependientes al cambiar facultada o nivel
+
+
+    // Limpiar campos dependientes al cambiar facultad o nivel
     $: if (nuevoUsuario.facultad_id) {
         // Al cambiar facultad, el programa y nivel deberían resetearse? 
-        // El usuario dijo: "al seleccionar facultad me debe pedir el nivel educativo despues de eso mostrarme los programas"
     }
+
+
 
     async function guardarUsuario() {
         try {
             if (
                 !nuevoUsuario.nombre ||
-                !nuevoUsuario.correo ||
-                (!usuarioAEditar && !nuevoUsuario.contrasena) || // Contraseña solo obligatoria al crear
+                !nuevoUsuario.email ||
+                (!usuarioAEditar && !nuevoUsuario.password) || // Contraseña solo obligatoria al crear
                 !nuevoUsuario.rol_id ||
                 !nuevoUsuario.tipo_documento_id ||
                 !nuevoUsuario.facultad_id ||
@@ -74,19 +83,23 @@
             };
 
             const url = usuarioAEditar 
-                ? `http://localhost:8000/usuarios/${usuarioAEditar.id}`
-                : "http://localhost:8000/usuarios/";
+                ? `${API}/usuarios/${usuarioAEditar.id}`
+                : `${API}/usuarios/`;
             
             const method = usuarioAEditar ? "PUT" : "POST";
 
             // Si es edición y no hay contraseña, no la enviamos
-            if (usuarioAEditar && !nuevoUsuario.contrasena) {
-                delete dataEnviar.contrasena;
+            if (usuarioAEditar && !nuevoUsuario.password) {
+                delete dataEnviar.password;
             }
 
+            const currentToken = get(token);
             const res = await fetch(url, {
                 method: method,
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${currentToken}`
+                },
                 body: JSON.stringify(dataEnviar),
             });
 
@@ -96,8 +109,8 @@
                 if (!usuarioAEditar) {
                     nuevoUsuario = {
                         nombre: "",
-                        correo: "",
-                        contrasena: "",
+                        email: "",
+                        password: "",
                         tipo_documento_id: null,
                         facultad_id: null,
                         nivel_educativo_id: null,
@@ -108,9 +121,15 @@
                 }
             } else {
                 const err = await res.json();
-                alert("Error: " + (err.detail || "No se pudo guardar"));
+                console.error("Error en API:", err);
+                // Si err.detail es un array (FastAPI 422), mostrarlo mejor
+                const detail = Array.isArray(err.detail) 
+                    ? err.detail.map(d => `${d.loc.join('.')}: ${d.msg}`).join('\n')
+                    : (err.detail || "No se pudo guardar");
+                alert("Error: " + detail);
             }
         } catch (error) {
+            console.error("Error de conexión:", error);
             alert("Error de conexión");
         }
     }
@@ -118,8 +137,7 @@
 
 <div class="card shadow-sm border-0 rounded-4 p-4 mt-2">
     <h5 class="fw-bold mb-4">
-        <i class="bi bi-person-plus me-2 text-primary"></i>Formulario de Nuevo
-        Usuario
+        <i class="bi bi-person-plus me-2 text-primary"></i>Formulario de Usuarios
     </h5>
     <form on:submit|preventDefault={guardarUsuario}>
         <div class="row g-4">
@@ -146,7 +164,7 @@
                     type="email"
                     class="form-control rounded-3 py-2"
                     placeholder="Ej: juan@iub.edu.co"
-                    bind:value={nuevoUsuario.correo}
+                    bind:value={nuevoUsuario.email}
                 />
             </div>
             <div class="col-md-6">
@@ -159,7 +177,7 @@
                     type="password"
                     class="form-control rounded-3 py-2"
                     placeholder={usuarioAEditar ? "Dejar en blanco para mantener actual" : "Mínimo 8 caracteres"}
-                    bind:value={nuevoUsuario.contrasena}
+                    bind:value={nuevoUsuario.password}
                 />
             </div>
             <div class="col-md-3">
@@ -260,7 +278,7 @@
                 >
                     <option value="">Seleccione un rol</option>
                     {#each roles as rol}
-                        <option value={rol.id}>{rol.nombre}</option>
+                        <option value={rol.id}>{rol.nombre_rol || rol.nombre}</option>
                     {/each}
                 </select>
             </div>

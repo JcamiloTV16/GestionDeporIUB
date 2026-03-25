@@ -58,7 +58,7 @@
               <tr>
                 <td>{deporte.id}</td>
                 <td class="fw-bold">{deporte.nombre}</td>
-                <td class="text-muted small"
+                <td class="text-muted small desc-cell"
                   >{deporte.descripcion || "Sin descripción"}</td
                 >
                 <td class="text-end">
@@ -122,3 +122,12 @@
     </form>
   </div>
 {/if}
+
+<style>
+  .desc-cell {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>

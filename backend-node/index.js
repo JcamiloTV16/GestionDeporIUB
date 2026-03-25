@@ -14,6 +14,13 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
+app.get('/debug-env', (req, res) => {
+  res.json({
+    DATABASE_URL: process.env.DATABASE_URL ? "SET (ends with " + process.env.DATABASE_URL.slice(-10) + ")" : "NOT SET",
+    PORT: process.env.PORT
+  });
+});
+
 app.get('/', (req, res) => {
   res.json({ mensaje: "API Auxiliar Express funcionando" });
 });

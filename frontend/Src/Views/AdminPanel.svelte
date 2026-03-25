@@ -17,6 +17,13 @@
     eliminarDeporte,
     actualizarDeporte,
     obtenerAuditorias,
+    obtenerUsuariosInactivos,
+    reactivarUsuario,
+    obtenerDeportesInactivos,
+    reactivarDeporte,
+    obtenerHorariosInactivos,
+    reactivarHorario,
+    inscribirEstudiante,
   } from "../Services/Api.js";
   import DashboardInfo from "../Components/dashboardInfo.svelte";
   import ListaUsuarios from "../Components/listaUsuarios.svelte";
@@ -24,6 +31,7 @@
   import ListaEstudiantes from "../Components/listaEstudiantes.svelte";
   import GestionDepor from "../Components/gestionDepor.svelte";
   import ListaAuditorias from "../Components/listaAuditorias.svelte";
+  import GestionTorneos from "../Components/GestionTorneos.svelte";
   import { token } from "../Store.js";
   import { get } from "svelte/store";
 
@@ -41,10 +49,14 @@
   let programas = [];
   let nivelesEducativos = [];
   let auditorias = [];
+  let usuariosInactivos = [];
+  let deportesInactivos = [];
+  let cursosInactivos = [];
   let cursoSeleccionado = null;
   let inscritos = [];
   let cargandoInscritos = false;
   let usuarioAEditar = null;
+  let cursoAEditar = null;
 
   let nuevoDeporte = { nombre: "", descripcion: "" };
   let editandoId = null;
@@ -85,9 +97,7 @@
       const resFacultades = await fetch(`http://localhost:3000/facultades`);
       facultades = await resFacultades.json();
 
-      const resNiveles = await fetch(
-        `http://localhost:3000/niveles-educativos`,
-      );
+      const resNiveles = await fetch(`http://localhost:3000/niveles-educativos`);
       nivelesEducativos = await resNiveles.json();
 
       const resProgramas = await fetch(`http://localhost:3000/programas`);
@@ -95,8 +105,8 @@
 
       // Backend Python
       const resRoles = await fetch(`${API}/roles/`);
-      roles = (await resRoles.json()).resultado || [];
-      console.log("Roles cargados:", roles);
+      const dataRoles = await resRoles.json();
+      roles = dataRoles.resultado || [];
 
       await cargarDeportes();
 
@@ -111,8 +121,6 @@
 
         const resCursos = await obtenerHorarios(currentToken);
         cursos = resCursos.resultado || [];
-        console.log("Cursos cargados:", cursos);
-        console.log("Entrenadores cargados:", entrenadores);
       }
     } catch (error) {
       console.error("Error cargando datos iniciales:", error);
@@ -125,9 +133,79 @@
       if (currentToken) {
         const res = await obtenerAuditorias(currentToken);
         auditorias = res.resultado || [];
+        
+        const resInactivos = await obtenerUsuariosInactivos(currentToken);
+        usuariosInactivos = resInactivos.resultado || [];
+
+        const resDeportesInactivos = await obtenerDeportesInactivos(currentToken);
+        deportesInactivos = resDeportesInactivos.resultado || [];
+
+        const resCursosInactivos = await obtenerHorariosInactivos(currentToken);
+        cursosInactivos = resCursosInactivos.resultado || [];
       }
     } catch (error) {
-      console.error("Error al cargar auditorias:", error);
+      console.error("Error al cargar auditorias e inactivos:", error);
+    }
+  }
+
+  async function refrescarTodo() {
+    try {
+      const currentToken = get(token);
+      if (!currentToken) return;
+      
+      await cargarDeportes();
+      
+      const resEntrenadores = await fetch(`${API}/entrenadores/`);
+      entrenadores = (await resEntrenadores.json()).resultado || [];
+      
+      const resUsuarios = await obtenerUsuarios(currentToken);
+      usuarios = resUsuarios.resultado || [];
+      
+      const resCursos = await obtenerHorarios(currentToken);
+      cursos = resCursos.resultado || [];
+      
+      await cargarAuditorias();
+    } catch (error) {
+      console.error("Error al refrescar todos los datos:", error);
+    }
+  }
+
+  async function manejarReactivarUsuario(id) {
+    try {
+      const currentToken = get(token);
+      await reactivarUsuario(id, currentToken);
+      alert("Usuario reactivado con éxito.");
+      await refrescarTodo();
+    } catch (error) {
+      console.error("Error al reactivar usuario:", error);
+      mensajeEstado = { texto: "Error al reactivar", tipo: "danger" };
+      setTimeout(() => (mensajeEstado = { texto: "", tipo: "" }), 3000);
+    }
+  }
+
+  async function manejarReactivarDeporte(id) {
+    try {
+      const currentToken = get(token);
+      await reactivarDeporte(id, currentToken);
+      alert("Deporte reactivado con éxito.");
+      await refrescarTodo();
+    } catch (error) {
+      console.error("Error al reactivar deporte:", error);
+      mensajeEstado = { texto: "Error al reactivar", tipo: "danger" };
+      setTimeout(() => (mensajeEstado = { texto: "", tipo: "" }), 3000);
+    }
+  }
+
+  async function manejarReactivarHorario(id) {
+    try {
+      const currentToken = get(token);
+      await reactivarHorario(id, currentToken);
+      alert("Curso reactivado con éxito.");
+      await refrescarTodo();
+    } catch (error) {
+      console.error("Error al reactivar curso:", error);
+      mensajeEstado = { texto: "Error al reactivar", tipo: "danger" };
+      setTimeout(() => (mensajeEstado = { texto: "", tipo: "" }), 3000);
     }
   }
 
@@ -162,25 +240,19 @@
     try {
       if (editandoId) {
         await actualizarDeporte(editandoId, nuevoDeporte);
-        mensajeEstado = {
-          texto: "Deporte actualizado con éxito",
-          tipo: "success",
-        };
+        alert("Deporte actualizado con éxito.");
       } else {
         await agregarDeporte(nuevoDeporte);
-        mensajeEstado = {
-          texto: "Deporte guardado con éxito",
-          tipo: "success",
-        };
+        alert("Deporte guardado con éxito.");
       }
       nuevoDeporte = { nombre: "", descripcion: "" };
       editandoId = null;
-      await cargarDeportes();
       subVistaInterna = "lista";
+      await refrescarTodo();
     } catch (error) {
       mensajeEstado = { texto: "Error al guardar deporte", tipo: "danger" };
+      setTimeout(() => (mensajeEstado = { texto: "", tipo: "" }), 3000);
     }
-    setTimeout(() => (mensajeEstado = { texto: "", tipo: "" }), 3000);
   }
 
   function prepararEdicionDeporte(deporte) {
@@ -193,12 +265,12 @@
     if (!confirm("¿Estás seguro de eliminar este deporte?")) return;
     try {
       await eliminarDeporte(id);
-      mensajeEstado = { texto: "Deporte eliminado", tipo: "success" };
-      await cargarDeportes();
+      alert("Deporte eliminado con éxito.");
+      await refrescarTodo();
     } catch (error) {
       mensajeEstado = { texto: "Error al eliminar", tipo: "danger" };
+      setTimeout(() => (mensajeEstado = { texto: "", tipo: "" }), 3000);
     }
-    setTimeout(() => (mensajeEstado = { texto: "", tipo: "" }), 3000);
   }
 
   async function manejarEliminarUsuario(id) {
@@ -206,20 +278,51 @@
     try {
       const currentToken = get(token);
       await eliminarUsuario(id, currentToken);
-      mensajeEstado = { texto: "Usuario eliminado", tipo: "success" };
-      // Recargar lista
-      const resUsuarios = await obtenerUsuarios(currentToken);
-      usuarios = resUsuarios.resultado || [];
+      alert("Usuario eliminado con éxito.");
+      await refrescarTodo();
     } catch (error) {
       console.error("Error al eliminar usuario:", error);
       mensajeEstado = { texto: "Error al eliminar usuario", tipo: "danger" };
+      setTimeout(() => (mensajeEstado = { texto: "", tipo: "" }), 3000);
     }
-    setTimeout(() => (mensajeEstado = { texto: "", tipo: "" }), 3000);
+  }
+
+  async function manejarEliminarHorario(id) {
+    if (!confirm("¿Estás seguro de desactivar este curso?")) return;
+    try {
+      const currentToken = get(token);
+      await fetch(`${API}/horarios/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${currentToken}` }
+      });
+      alert("Curso desactivado con éxito.");
+      await refrescarTodo();
+    } catch (error) {
+      console.error("Error al desactivar curso:", error);
+      mensajeEstado = { texto: "Error al desactivar", tipo: "danger" };
+      setTimeout(() => (mensajeEstado = { texto: "", tipo: "" }), 3000);
+    }
   }
 
   function prepararEdicionUsuario(usuario) {
     usuarioAEditar = usuario;
     subVistaInterna = "crear";
+  }
+
+  async function manejarInscribirEstudiante(datos) {
+    try {
+      const currentToken = get(token);
+      await inscribirEstudiante(datos, currentToken);
+      alert("Estudiante inscrito con éxito.");
+      await refrescarTodo();
+      if (cursoSeleccionado) {
+        await verInscritos(cursoSeleccionado);
+      }
+    } catch (error) {
+      console.error("Error al inscribir estudiante:", error);
+      mensajeEstado = { texto: "Error al inscribir estudiante", tipo: "danger" };
+      setTimeout(() => (mensajeEstado = { texto: "", tipo: "" }), 3000);
+    }
   }
 
   function manejarSalida() {
@@ -264,6 +367,13 @@
     >
       <i class="bi bi-calendar me-2"></i>Auditorias
     </button>
+    <!-- Menu Torneos -->
+    <button
+      class="btn-pestana {vistaActual === 'torneos' ? 'activa' : ''}"
+      on:click={() => cambiarVistaPrincipal("torneos")}
+    >
+      <i class="bi bi-trophy me-2"></i>Torneos
+    </button>
   </div>
   <main class="contenido-principal p-4">
     {#if vistaActual === "dashboard"}
@@ -296,9 +406,7 @@
             on:guardado={async () => {
               usuarioAEditar = null;
               subVistaInterna = "lista";
-              const currentToken = get(token);
-              const resUsuarios = await obtenerUsuarios(currentToken);
-              usuarios = resUsuarios.resultado || [];
+              await refrescarTodo();
             }}
           />
         {/if}
@@ -318,23 +426,40 @@
             {deportes}
             {entrenadores}
             on:verInscritos={(e) => verInscritos(e.detail)}
+            on:eliminar={(e) => manejarEliminarHorario(e.detail)}
+            on:editar={(e) => {
+              cursoAEditar = e.detail;
+              subVistaInterna = "crear";
+            }}
           />
         {:else if subVistaInterna === "crear"}
           <CourseForm
             {deportes}
             {entrenadores}
-            on:guardado={() => (subVistaInterna = "lista")}
+            {cursoAEditar}
+            on:guardado={async () => {
+              cursoAEditar = null;
+              subVistaInterna = "lista";
+              await refrescarTodo();
+            }}
+            on:cancelar={() => {
+              cursoAEditar = null;
+              subVistaInterna = "lista";
+            }}
           />
         {:else if subVistaInterna === "inscritos"}
           <ListaEstudiantes
             {cursoSeleccionado}
             {inscritos}
             {deportes}
+            {usuarios}
+            {programas}
             {cargandoInscritos}
             on:volver={() => {
               cursoSeleccionado = null;
               subVistaInterna = "lista";
             }}
+            on:inscribir={(e) => manejarInscribirEstudiante(e.detail)}
           />
         {/if}
       </section>
@@ -365,8 +490,22 @@
       </section>
     {:else if vistaActual === "auditorias"}
       <section class="animate__animated animate__fadeIn">
-        <h2 class="fw-bold text-dark mb-4">Registro de Auditoría</h2>
-        <ListaAuditorias {auditorias} {usuarios} />
+        <h2 class="fw-bold text-dark mb-4">Registro de Auditoría y Usuarios Inactivos</h2>
+        <ListaAuditorias 
+          {auditorias} 
+          {usuarios} 
+          {usuariosInactivos}
+          {deportesInactivos}
+          {cursosInactivos}
+          on:reactivarUsuario={(e) => manejarReactivarUsuario(e.detail)}
+          on:reactivarDeporte={(e) => manejarReactivarDeporte(e.detail)}
+          on:reactivarHorario={(e) => manejarReactivarHorario(e.detail)}
+        />
+      </section>
+    {:else if vistaActual === "torneos"}
+      <section class="animate__animated animate__fadeIn">
+        <h2 class="fw-bold text-dark mb-4">Gestión de Torneos</h2>
+        <GestionTorneos />
       </section>
     {/if}
   </main>

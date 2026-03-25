@@ -10,6 +10,7 @@ from app.routes.horario_routes import router as horario_router
 from app.routes.inscripcion_routes import router as inscripcion_router
 from app.routes.auditoria_routes import router as auditoria_router
 from app.routes.auth_routes import router as auth_router
+from app.routes.torneo_routes import router as torneo_router
 
 app = FastAPI()
 
@@ -25,7 +26,8 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origin_regex=r"http://localhost(:\d+)?",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,6 +43,7 @@ app.include_router(horario_router)
 app.include_router(inscripcion_router)
 app.include_router(auditoria_router)
 app.include_router(auth_router)
+app.include_router(torneo_router)
 
 if __name__ == "__main__":
     import uvicorn

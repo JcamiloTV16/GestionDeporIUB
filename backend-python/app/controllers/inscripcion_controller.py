@@ -13,7 +13,7 @@ class InscripcionController(BaseController):
                 SELECT DISTINCT u.id, u.nombre, u.email as correo, i.create_ as fecha_inscripcion, i.estado
                 FROM inscripciones i
                 JOIN usuarios u ON i.estudiante_id = u.id
-                WHERE i.deporte_id = (SELECT deporte_id FROM horarios WHERE id = %s)
+                WHERE i.horario_id = %s
             """
             cursor.execute(query, (horario_id,))
             result = cursor.fetchall()
@@ -23,6 +23,37 @@ class InscripcionController(BaseController):
             for row in result:
                 content = dict(zip(colnames, row))
                 payload.append(content)
+                
+            return {"resultado": jsonable_encoder(payload)}
+                
+        except Exception as err:
+            if conn:
+                conn.rollback()
+            raise HTTPException(status_code=500, detail=str(err))
+        finally:
+            if conn:
+                conn.close()
+
+    def get_deportes_por_estudiante(self, estudiante_id: int):
+        conn = None
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            query = """
+                SELECT DISTINCT d.id, d.nombre, d.descripcion,
+                       h.dia_semana, h.hora_inicio, h.hora_fin, h.lugar,
+                       i.create_ as fecha_inscripcion
+                FROM inscripciones i
+                JOIN deportes d ON i.deporte_id = d.id
+                LEFT JOIN horarios h ON i.horario_id = h.id
+                WHERE i.estudiante_id = %s AND i.estado = TRUE
+                ORDER BY d.nombre
+            """
+            cursor.execute(query, (estudiante_id,))
+            result = cursor.fetchall()
+            
+            colnames = [desc[0] for desc in cursor.description]
+            payload = [dict(zip(colnames, row)) for row in result]
                 
             return {"resultado": jsonable_encoder(payload)}
                 

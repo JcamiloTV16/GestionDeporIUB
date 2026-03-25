@@ -8,6 +8,10 @@ router = APIRouter()
 async def get_deportes():
     return deporte_controller.get_all()
 
+@router.get("/deportes/inactivos/", tags=["Deportes"])
+async def get_deportes_inactivos():
+    return deporte_controller.get_inactive()
+
 @router.get("/deportes/{id}", response_model=Deporte, tags=["Deportes"])
 async def get_deporte(id: int):
     return deporte_controller.get_by_id(id)
@@ -23,3 +27,7 @@ async def update_deporte(id: int, deporte: Deporte):
 @router.delete("/deportes/{id}", tags=["Deportes"])
 async def delete_deporte(id: int):
     return deporte_controller.delete(id)
+
+@router.post("/deportes/{id}/reactivar/", tags=["Deportes"])
+async def reactivate_deporte(id: int):
+    return deporte_controller.reactivate(id)

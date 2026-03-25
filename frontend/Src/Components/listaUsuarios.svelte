@@ -31,7 +31,8 @@
               <td>{usuario.nombre}</td>
               <td>{usuario.email || usuario.correo}</td>
               <td
-                >{roles.find((r) => r.id === usuario.rol_id)?.nombre ||
+                >{roles.find((r) => r.id === usuario.rol_id)?.nombre_rol ||
+                  roles.find((r) => r.id === usuario.rol_id)?.nombre ||
                   "Desconocido"}</td
               >
               <td

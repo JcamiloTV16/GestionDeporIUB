@@ -6,6 +6,7 @@ from app.models.base_models import get_colombia_time
 class InscripcionBase(BaseModel):
     estudiante_id: int
     deporte_id: int
+    horario_id: int
     programa_id: int
 
 class InscripcionCreate(InscripcionBase):

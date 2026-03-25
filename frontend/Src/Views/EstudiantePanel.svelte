@@ -103,16 +103,16 @@
     right: 30px;
     z-index: 1000;
     max-width: 350px;
-    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
   }
 
   @media (max-width: 768px) {
     .chatbot-wrapper {
-      position: relative;
-      bottom: auto;
-      right: auto;
-      margin-top: 2rem;
-      max-width: 100%;
+      right: 15px;
+      bottom: 15px;
+      max-width: 300px;
     }
   }
 </style>

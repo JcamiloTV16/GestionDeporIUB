@@ -7,9 +7,26 @@
   import EstudiantePanel from "./Views/EstudiantePanel.svelte";
   import Navbar from "./Components/Navbar.svelte";
   import Footer from "./Components/Footer.svelte";
+  import Perfil from "./Views/Perfil.svelte";
+  import { onMount, onDestroy } from "svelte";
+
+  let currentHash = "";
 
   let tipoRol;
   rol.subscribe((value) => (tipoRol = value));
+
+  function handleHashChange() {
+    currentHash = window.location.hash;
+  }
+
+  onMount(() => {
+    handleHashChange();
+    window.addEventListener("hashchange", handleHashChange);
+  });
+
+  onDestroy(() => {
+    window.removeEventListener("hashchange", handleHashChange);
+  });
 </script>
 
 <div class="app-container min-vh-100 d-flex flex-column">
@@ -18,7 +35,9 @@
   {:else}
     <Navbar />
     <main class="flex-grow-1">
-      {#if tipoRol === "admin"}
+      {#if currentHash === "#/perfil"}
+        <Perfil on:volver={() => window.location.hash = ""} />
+      {:else if tipoRol === "admin"}
         <AdminPanel />
       {:else if tipoRol === "entrenador"}
         <EntrenadorPanel />

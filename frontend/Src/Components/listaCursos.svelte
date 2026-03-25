@@ -9,6 +9,10 @@
   function verInscritos(curso) {
     dispatch("verInscritos", curso);
   }
+
+  function eliminarHorario(id) {
+    dispatch("eliminar", id);
+  }
 </script>
 
 <div class="card shadow-sm border-0 rounded-4 p-4 mt-2">
@@ -52,10 +56,10 @@
                 >
                   <i class="bi bi-people"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-primary me-2"
+                <button class="btn btn-sm btn-outline-primary me-2" on:click={() => dispatch("editar", curso)}
                   ><i class="bi bi-pencil"></i></button
                 >
-                <button class="btn btn-sm btn-outline-danger"
+                <button class="btn btn-sm btn-outline-danger" on:click={() => eliminarHorario(curso.id)}
                   ><i class="bi bi-trash"></i></button
                 >
               </td>

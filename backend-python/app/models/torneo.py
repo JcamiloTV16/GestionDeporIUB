@@ -1,17 +1,22 @@
 from pydantic import BaseModel, Field
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, date
 from app.models.base_models import get_colombia_time
 
-class DeporteBase(BaseModel):
+class TorneoBase(BaseModel):
     nombre: str
     descripcion: Optional[str] = None
-    imagen_logro: Optional[str] = None
+    deporte_id: Optional[int] = None
+    fecha_inicio: date
+    fecha_fin: Optional[date] = None
+    lugar: Optional[str] = None
+    estado_torneo: Optional[str] = "Próximamente"
+    creado_por: Optional[int] = None
 
-class DeporteCreate(DeporteBase):
+class TorneoCreate(TorneoBase):
     pass
 
-class Deporte(DeporteBase):
+class Torneo(TorneoBase):
     id: Optional[int] = None
     estado: bool = True
     create_: Optional[datetime] = Field(default_factory=get_colombia_time)

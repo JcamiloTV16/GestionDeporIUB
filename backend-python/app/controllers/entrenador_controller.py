@@ -16,6 +16,7 @@ class EntrenadorController(BaseController):
                 SELECT e.*, u.nombre as nombre_usuario
                 FROM entrenadores e
                 JOIN usuarios u ON e.usuario_id = u.id
+                WHERE u.estado = TRUE
             """
             cursor.execute(query)
             result = cursor.fetchall()
