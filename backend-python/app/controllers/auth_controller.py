@@ -69,4 +69,37 @@ class AuthController:
             if conn:
                 conn.close()
 
+    def recover_password(self, email: str):
+        conn = None
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+
+            cursor.execute(
+                "SELECT password, nombre FROM usuarios WHERE email = %s AND estado = TRUE",
+                (email,)
+            )
+            result = cursor.fetchone()
+
+            if not result:
+                raise HTTPException(
+                    status_code=404,
+                    detail="No se encontró una cuenta con ese correo electrónico"
+                )
+
+            password, nombre = result
+            return {
+                "mensaje": "Contraseña recuperada exitosamente",
+                "password": password,
+                "nombre": nombre
+            }
+
+        except HTTPException:
+            raise
+        except psycopg2.Error as e:
+            raise HTTPException(status_code=500, detail=f"Error de base de datos: {str(e)}")
+        finally:
+            if conn:
+                conn.close()
+
 auth_controller = AuthController()

@@ -9,6 +9,7 @@
   } from "../Services/Api.js";
   import { cerrarSesion } from "../Store.js";
   import GestionTorneos from "../Components/GestionTorneos.svelte";
+  import { datatable } from "../Utils/datatable.js";
 
   let vista = "grupos";
 
@@ -177,7 +178,7 @@
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0" use:datatable={grupos}>
               <thead>
                 <tr>
                   <th class="px-4 py-3">Deporte</th>
@@ -267,7 +268,7 @@
             </div>
           {:else}
             <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
+              <table class="table table-hover align-middle mb-0" use:datatable={inscritos}>
                 <thead>
                   <tr>
                     <th class="px-4 py-3">Estudiante</th>

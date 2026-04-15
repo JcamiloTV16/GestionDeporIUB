@@ -76,6 +76,21 @@ export async function login(email, password) {
   return await res.json()
 }
 
+export async function recoverPassword(email) {
+  const res = await fetch(`${API}/auth/recover`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email })
+  })
+
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.detail || "Error al recuperar la contraseña")
+  }
+
+  return await res.json()
+}
+
 export async function obtenerUsuarios(token) {
   const res = await authFetch(`${API}/usuarios/`, {
     headers: {
@@ -250,6 +265,75 @@ export async function eliminarTorneo(id, token) {
   const res = await authFetch(`${API}/torneos/${id}`, {
     method: "DELETE",
     headers: { "Authorization": `Bearer ${token}` }
+  })
+  return await res.json()
+}
+
+export async function cambiarEstadoTorneo(id, nuevoEstado, token) {
+  const res = await authFetch(`${API}/torneos/${id}/estado`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({ estado_torneo: nuevoEstado })
+  })
+  return await res.json()
+}
+
+// --- Inscripciones a Torneos ---
+export async function inscribirseEnTorneo(datos, token) {
+  const res = await authFetch(`${API}/inscripciones-torneo/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify(datos)
+  })
+  return await res.json()
+}
+
+export async function obtenerInscritosTorneo(torneoId, token) {
+  const res = await authFetch(`${API}/inscripciones-torneo/torneo/${torneoId}`, {
+    headers: { "Authorization": `Bearer ${token}` }
+  })
+  return await res.json()
+}
+
+export async function obtenerMisTorneos(estudianteId, token) {
+  const res = await authFetch(`${API}/inscripciones-torneo/estudiante/${estudianteId}`, {
+    headers: { "Authorization": `Bearer ${token}` }
+  })
+  return await res.json()
+}
+
+export async function cambiarEstadoInscripcionTorneo(id, estado, token) {
+  const res = await authFetch(`${API}/inscripciones-torneo/${id}/estado`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({ estado_inscripcion: estado })
+  })
+  return await res.json()
+}
+
+export async function cancelarInscripcionTorneo(id, token) {
+  const res = await authFetch(`${API}/inscripciones-torneo/${id}`, {
+    method: "DELETE",
+    headers: { "Authorization": `Bearer ${token}` }
+  })
+  return await res.json()
+}
+
+// --- Chatbot ---
+export async function enviarMensajeChatbot(mensaje) {
+  const res = await fetch(`${API}/chatbot/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mensaje })
   })
   return await res.json()
 }

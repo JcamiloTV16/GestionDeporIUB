@@ -7,4 +7,5 @@ from .horario import Horario, HorarioCreate
 from .inscripcion import Inscripcion, InscripcionCreate
 from .auditoria import AuditoriaAccesos, AuditoriaAccesosCreate
 from .torneo import Torneo, TorneoCreate
+from .inscripcion_torneo import InscripcionTorneo, InscripcionTorneoCreate, InscripcionTorneoUpdate
 from .user import User, UserCreate

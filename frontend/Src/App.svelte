@@ -2,6 +2,7 @@
   import { rol } from "./Store.js";
   import Header from "./Components/Header.svelte";
   import Login from "./Views/Login.svelte";
+  import OlvidoContra from "./Views/OlvidoContra.svelte";
   import AdminPanel from "./Views/AdminPanel.svelte";
   import EntrenadorPanel from "./Views/EntrenadorPanel.svelte";
   import EstudiantePanel from "./Views/EstudiantePanel.svelte";
@@ -30,7 +31,9 @@
 </script>
 
 <div class="app-container min-vh-100 d-flex flex-column">
-  {#if !tipoRol}
+  {#if currentHash === "#/recover"}
+    <OlvidoContra />
+  {:else if !tipoRol}
     <Login />
   {:else}
     <Navbar />

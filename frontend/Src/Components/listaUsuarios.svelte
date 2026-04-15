@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import { datatable } from "../Utils/datatable.js";
   const dispatch = createEventDispatcher();
 
   export let usuarios = [];
@@ -9,7 +10,7 @@
 <div class="card shadow-sm border-0 rounded-4 p-4 mt-2">
   <h5 class="fw-bold mb-3">Lista de Usuarios</h5>
   <div class="table-responsive">
-    <table class="table table-hover align-middle mb-0">
+    <table class="table table-hover align-middle mb-0" use:datatable={usuarios}>
       <thead class="bg-light text-muted">
         <tr>
           <th>ID</th><th>Nombre</th><th>Correo</th><th>Rol</th><th

@@ -1,11 +1,13 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import { datatable } from "../Utils/datatable.js";
   const dispatch = createEventDispatcher();
 
   export let cursoSeleccionado = null;
   export let inscritos = [];
   export let deportes = [];
   export let usuarios = [];
+  export let programas = [];
   export let cargandoInscritos = false;
 
   let estudianteId = "";
@@ -95,7 +97,7 @@
     <!-- Tabla de Inscritos -->
     <div class="card shadow-sm border-0 rounded-4 p-4">
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0" use:datatable={inscritos}>
           <thead class="bg-light text-muted small text-uppercase">
             <tr>
               <th>Nombre del Estudiante</th>

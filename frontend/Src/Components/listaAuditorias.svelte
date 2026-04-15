@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import { datatable } from "../Utils/datatable.js";
   const dispatch = createEventDispatcher();
 
   export let usuariosInactivos = [];
@@ -14,7 +15,7 @@
   </h4>
   <div class="card shadow-sm border-0 rounded-4 p-4">
     <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
+      <table class="table table-hover align-middle mb-0" use:datatable={usuariosInactivos}>
         <thead class="bg-light text-muted">
           <tr>
             <th>Nombre</th>
@@ -60,7 +61,7 @@
   </h4>
   <div class="card shadow-sm border-0 rounded-4 p-4">
     <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
+      <table class="table table-hover align-middle mb-0" use:datatable={deportesInactivos}>
         <thead class="bg-light text-muted">
           <tr>
             <th>Nombre</th>
@@ -102,7 +103,7 @@
   </h4>
   <div class="card shadow-sm border-0 rounded-4 p-4">
     <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
+      <table class="table table-hover align-middle mb-0" use:datatable={cursosInactivos}>
         <thead class="bg-light text-muted">
           <tr>
             <th>ID</th>

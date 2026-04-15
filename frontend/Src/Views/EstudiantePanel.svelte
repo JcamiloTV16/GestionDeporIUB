@@ -11,9 +11,6 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h2 class="fw-bold text-dark m-0">Bienvenido Estudiante</h2>
-      <p class="text-muted small mb-0">
-        Gestiona tus disciplinas y registros deportivos
-      </p>
     </div>
     <span
       class="badge bg-info-subtle text-info border border-info-subtle px-3 py-2 rounded-pill"

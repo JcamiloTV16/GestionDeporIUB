@@ -11,6 +11,8 @@ from app.routes.inscripcion_routes import router as inscripcion_router
 from app.routes.auditoria_routes import router as auditoria_router
 from app.routes.auth_routes import router as auth_router
 from app.routes.torneo_routes import router as torneo_router
+from app.routes.inscripcion_torneo_routes import router as inscripcion_torneo_router
+from app.routes.chatbot_routes import router as chatbot_router
 
 app = FastAPI()
 
@@ -44,6 +46,8 @@ app.include_router(inscripcion_router)
 app.include_router(auditoria_router)
 app.include_router(auth_router)
 app.include_router(torneo_router)
+app.include_router(inscripcion_torneo_router)
+app.include_router(chatbot_router)
 
 if __name__ == "__main__":
     import uvicorn
